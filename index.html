@@ -7,18 +7,19 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
+  html, body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f5f5f5;
+    background: #efefef;
     color: #333;
-    display: flex;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
-  /* ── SIDEBAR ── */
+  /* ────────────────────────────────
+     SIDEBAR
+  ──────────────────────────────── */
   .sidebar {
     width: 260px;
-    min-width: 260px;
     background: #1a2e1a;
     color: #fff;
     display: flex;
@@ -26,8 +27,9 @@
     padding: 24px 0 16px;
     position: fixed;
     top: 0; left: 0; bottom: 0;
-    z-index: 100;
+    z-index: 200;
     overflow-y: auto;
+    transition: transform .25s ease;
   }
 
   .sidebar-brand {
@@ -43,12 +45,12 @@
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 18px;
+    flex-shrink: 0;
   }
 
   .brand-name { font-size: 17px; font-weight: 700; line-height: 1.1; }
   .brand-sub  { font-size: 10px; color: #8aab8a; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  /* Progress */
   .progress-box {
     margin: 0 16px 20px;
     background: #243824;
@@ -77,7 +79,6 @@
   .progress-label { font-size: 10px; color: #8aab8a; text-transform: uppercase; letter-spacing: 0.07em; }
   .progress-count { font-size: 13px; font-weight: 600; color: #fff; }
 
-  /* Nav */
   .nav-section-label {
     padding: 12px 20px 6px;
     font-size: 10px;
@@ -102,13 +103,7 @@
   }
 
   .nav-item:hover { background: #2d4a2d; color: #fff; }
-
-  .nav-item.active {
-    background: #2e7d32;
-    color: #fff;
-    font-weight: 600;
-  }
-
+  .nav-item.active { background: #2e7d32; color: #fff; font-weight: 600; }
   .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
 
   .nav-badge {
@@ -122,7 +117,6 @@
   }
 
   .sidebar-cta {
-    margin: auto 16px 0;
     background: #2e7d32;
     color: #fff;
     border: none;
@@ -136,20 +130,82 @@
     justify-content: center;
     gap: 8px;
     width: calc(100% - 32px);
-    margin-top: 24px;
+    margin: 24px 16px 0;
   }
 
   .sidebar-cta:hover { background: #256428; }
 
-  /* ── MAIN ── */
-  .main {
-    margin-left: 260px;
-    flex: 1;
-    padding: 32px;
+  /* ────────────────────────────────
+     OVERLAY
+  ──────────────────────────────── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 150;
+  }
+  .overlay.open { display: block; }
+
+  /* ────────────────────────────────
+     MOBILE HEADER BAR
+  ──────────────────────────────── */
+  .mobile-header {
+    display: none;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 16px;
+    height: 52px;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .hamburger {
+    position: absolute;
+    left: 16px;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+  }
+
+  .mobile-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  /* ────────────────────────────────
+     LAYOUT WRAPPER
+  ──────────────────────────────── */
+  .layout {
+    display: flex;
     min-height: 100vh;
   }
 
-  /* Processing card */
+  /* Spacer that pushes main content right of the fixed sidebar */
+  .sidebar-spacer {
+    width: 260px;
+    flex-shrink: 0;
+  }
+
+  /* ────────────────────────────────
+     MAIN CONTENT
+  ──────────────────────────────── */
+  .main {
+    flex: 1;
+    padding: 32px;
+    min-width: 0;
+  }
+
+  /* ────────────────────────────────
+     PROCESSING CARD
+  ──────────────────────────────── */
   .processing-card {
     background: #fff;
     border-radius: 12px;
@@ -191,7 +247,7 @@
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    50%       { opacity: 0.4; }
   }
 
   .processing-sub {
@@ -202,20 +258,20 @@
     text-transform: uppercase;
   }
 
-  /* Countdown */
   .countdown {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     margin-bottom: 20px;
+    flex-wrap: nowrap;
   }
 
   .cd-block {
     background: #f5f5f5;
     border-radius: 8px;
     padding: 14px 18px;
-    min-width: 78px;
+    min-width: 72px;
     text-align: center;
   }
 
@@ -236,10 +292,9 @@
   }
 
   .cd-sep {
-    font-size: 30px;
+    font-size: 28px;
     color: #ccc;
     font-weight: 300;
-    margin: 0 2px;
     line-height: 1;
   }
 
@@ -263,6 +318,8 @@
     gap: 8px;
     margin-bottom: 20px;
     transition: background .15s;
+    width: 100%;
+    justify-content: center;
   }
 
   .btn-watch:hover { background: #256428; }
@@ -281,7 +338,7 @@
     text-align: left;
   }
 
-  .warning-box .warn-icon { flex-shrink: 0; font-size: 15px; }
+  .warn-icon { flex-shrink: 0; font-size: 15px; }
 
   .support-row {
     display: flex;
@@ -291,17 +348,13 @@
     font-size: 13px;
     color: #555;
     flex-wrap: wrap;
+    margin-bottom: 10px;
   }
-
-  .support-row strong { color: #333; }
 
   .contact-btns {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
     gap: 10px;
-    margin-top: 10px;
-    flex-wrap: wrap;
   }
 
   .btn-contact {
@@ -309,12 +362,13 @@
     background: transparent;
     color: #2e7d32;
     border-radius: 7px;
-    padding: 9px 16px;
+    padding: 11px 16px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 7px;
     text-decoration: none;
     transition: background .15s, color .15s;
@@ -322,7 +376,9 @@
 
   .btn-contact:hover { background: #2e7d32; color: #fff; }
 
-  /* Courses */
+  /* ────────────────────────────────
+     COURSES
+  ──────────────────────────────── */
   .section-title {
     font-size: 20px;
     font-weight: 700;
@@ -342,10 +398,10 @@
     border: 1px solid #e8e8e8;
     padding: 20px;
     cursor: pointer;
-    transition: box-shadow .15s, border-color .15s;
+    transition: box-shadow .15s;
   }
 
-  .course-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); border-color: #c8dcc8; }
+  .course-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
 
   .course-top {
     display: flex;
@@ -363,16 +419,11 @@
     flex-shrink: 0;
   }
 
-  .course-info { flex: 1; }
+  .course-info { flex: 1; min-width: 0; }
   .course-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
   .course-count { font-size: 12px; color: #999; margin-top: 2px; }
 
-  .course-pct {
-    font-size: 14px;
-    font-weight: 700;
-    color: #2e7d32;
-  }
-
+  .course-pct { font-size: 14px; font-weight: 700; color: #2e7d32; white-space: nowrap; }
   .course-pct.zero { color: #999; }
 
   .progress-bar-wrap {
@@ -386,72 +437,39 @@
     height: 100%;
     background: #2e7d32;
     border-radius: 2px;
-    transition: width .3s;
   }
 
-  /* ── MOBILE HEADER (hamburger bar) ── */
-  .mobile-header {
-    display: none;
-    background: #fff;
-    border-bottom: 1px solid #e8e8e8;
-    padding: 14px 16px;
-    align-items: center;
-    justify-content: center;
-    position: sticky;
-    top: 0;
-    z-index: 200;
-  }
-
-  .hamburger {
-    background: none;
-    border: none;
-    color: #333;
-    font-size: 22px;
-    cursor: pointer;
-    padding: 2px 6px;
-    line-height: 1;
-    position: absolute;
-    left: 16px;
-  }
-
-  .mobile-brand { color: #1a1a1a; font-weight: 700; font-size: 17px; }
-
-  /* Overlay (used on mobile when sidebar is open) */
-  .overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.45);
-    z-index: 99;
-  }
-  .overlay.open { display: block; }
-
-  /* ── RESPONSIVE — MOBILE ── */
+  /* ────────────────────────────────
+     RESPONSIVE
+  ──────────────────────────────── */
   @media (max-width: 768px) {
-    /* Show hamburger bar */
+    /* Show mobile top bar */
     .mobile-header { display: flex; }
 
-    /* Sidebar hides off-screen by default; slides in when .open */
+    /* Hide sidebar by default; slide in as overlay */
     .sidebar {
-      transform: translateX(-100%);
-      transition: transform .25s ease;
+      transform: translateX(-260px);
     }
-    .sidebar.open { transform: translateX(0); }
+    .sidebar.open {
+      transform: translateX(0);
+    }
 
-    /* Content fills full width */
-    .main { margin-left: 0; padding: 16px; }
+    /* Remove sidebar spacer on mobile */
+    .sidebar-spacer { display: none; }
 
-    /* Tighter grid */
+    /* Full-width content */
+    .main { padding: 16px; }
+
+    /* Single column courses */
     .courses-grid { grid-template-columns: 1fr; }
 
+    /* Tighter countdown */
+    .cd-block { min-width: 56px; padding: 10px 10px; }
+    .cd-num   { font-size: 26px; }
     .countdown { gap: 4px; }
-    .cd-block { min-width: 60px; padding: 10px 12px; }
-    .cd-num { font-size: 28px; }
-
-    .contact-btns { flex-direction: column; align-items: stretch; }
-    .btn-contact { justify-content: center; }
+    .cd-sep   { font-size: 22px; }
   }
 
-  /* Tablet: 2-col grid, sidebar still fixed */
   @media (min-width: 769px) and (max-width: 1100px) {
     .courses-grid { grid-template-columns: repeat(2, 1fr); }
   }
@@ -459,13 +477,13 @@
 </head>
 <body>
 
-<!-- Mobile header (hidden on desktop via CSS) -->
+<!-- Mobile top bar (hidden on desktop) -->
 <div class="mobile-header" id="mobileHeader">
   <button class="hamburger" id="hamburger">☰</button>
-  <span class="mobile-brand">Dashboard</span>
+  <span class="mobile-title">Dashboard</span>
 </div>
 
-<!-- Overlay -->
+<!-- Dim overlay for mobile sidebar -->
 <div class="overlay" id="overlay"></div>
 
 <!-- Sidebar -->
@@ -478,7 +496,6 @@
     </div>
   </div>
 
-  <!-- Progress -->
   <div class="progress-box">
     <div class="progress-ring-wrap">
       <svg width="48" height="48" viewBox="0 0 48 48">
@@ -494,18 +511,12 @@
     </div>
   </div>
 
-  <!-- Dashboard -->
-  <a class="nav-item active" href="#">
-    <span class="nav-icon">▦</span> Dashboard
-  </a>
+  <a class="nav-item active" href="#"><span class="nav-icon">▦</span> Dashboard</a>
 
   <div class="nav-section-label">Recovery</div>
   <a class="nav-item" href="#"><span class="nav-icon">🎓</span> Training</a>
   <a class="nav-item" href="#"><span class="nav-icon">💵</span> American Refunds</a>
-  <a class="nav-item" href="#">
-    <span class="nav-icon">⬇</span> Recovery PRO
-    <span class="nav-badge">2/5</span>
-  </a>
+  <a class="nav-item" href="#"><span class="nav-icon">⬇</span> Recovery PRO<span class="nav-badge">2/5</span></a>
 
   <div class="nav-section-label">Bonus</div>
   <a class="nav-item" href="#"><span class="nav-icon">💳</span> PayPal Bonus</a>
@@ -516,185 +527,137 @@
   <button class="sidebar-cta">📞 +1 (866) 959-1615</button>
 </aside>
 
-<!-- Main -->
-<main class="main">
+<!-- Layout wrapper -->
+<div class="layout">
+  <!-- Pushes content right of fixed sidebar on desktop -->
+  <div class="sidebar-spacer"></div>
 
-  <!-- Processing card -->
-  <div class="processing-card">
-    <div class="processing-status">
-      <div class="status-dot"></div>
-      Processing
-    </div>
-    <div class="processing-sub">Funds available for withdrawal in</div>
+  <!-- Main content -->
+  <main class="main">
 
-    <div class="countdown">
-      <div class="cd-block">
-        <span class="cd-num" id="cd-days">59</span><span class="cd-label"> D</span>
+    <div class="processing-card">
+      <div class="processing-status">
+        <div class="status-dot"></div>
+        Processing
       </div>
-      <div class="cd-sep">:</div>
-      <div class="cd-block">
-        <span class="cd-num" id="cd-hours">21</span><span class="cd-label"> H</span>
+      <div class="processing-sub">Funds available for withdrawal in</div>
+
+      <div class="countdown">
+        <div class="cd-block"><span class="cd-num" id="cd-days">59</span><span class="cd-label"> D</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-block"><span class="cd-num" id="cd-hours">21</span><span class="cd-label"> H</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-block"><span class="cd-num" id="cd-mins">34</span><span class="cd-label"> M</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-block"><span class="cd-num" id="cd-secs">57</span><span class="cd-label"> S</span></div>
       </div>
-      <div class="cd-sep">:</div>
-      <div class="cd-block">
-        <span class="cd-num" id="cd-mins">34</span><span class="cd-label"> M</span>
+
+      <p class="processing-hint">Watch the tutorial videos to <strong>advance your withdrawal date</strong>.</p>
+
+      <button class="btn-watch">▶ Watch Tutorial Videos</button>
+
+      <div class="warning-box">
+        <span class="warn-icon">🚫</span>
+        <span>Do NOT contact DigiStore, Hotmart, ClickBank, or BuyGoods directly. This will delay your withdrawal and result in disqualification.</span>
       </div>
-      <div class="cd-sep">:</div>
-      <div class="cd-block">
-        <span class="cd-num" id="cd-secs">57</span><span class="cd-label"> S</span>
+
+      <div class="support-row">🎧 <strong>Having issues?</strong> Contact us directly.</div>
+      <div class="contact-btns">
+        <a class="btn-contact" href="tel:+18669591615">📞 +1 (866) 959-1615</a>
+        <a class="btn-contact" href="mailto:systemushelp@gmail.com">✉ systemushelp@gmail.com</a>
       </div>
     </div>
 
-    <p class="processing-hint">
-      Watch the tutorial videos to <strong>advance your withdrawal date</strong>.
-    </p>
+    <h2 class="section-title">Your Courses</h2>
+    <div class="courses-grid">
 
-    <button class="btn-watch">▶ Watch Tutorial Videos</button>
-
-    <div class="warning-box">
-      <span class="warn-icon">⊘</span>
-      <span>Do NOT contact DigiStore, Hotmart, ClickBank, or BuyGoods directly. This will delay your withdrawal and result in disqualification.</span>
-    </div>
-
-    <div class="support-row">
-      🎧 <strong>Having issues?</strong> Contact us directly.
-    </div>
-    <div class="contact-btns">
-      <a class="btn-contact" href="tel:+18669591615">📞 +1 (866) 959-1615</a>
-      <a class="btn-contact" href="mailto:systemushelp@gmail.com">✉ systemushelp@gmail.com</a>
-    </div>
-  </div>
-
-  <!-- Courses -->
-  <h2 class="section-title">Your Courses</h2>
-  <div class="courses-grid">
-
-    <div class="course-card">
-      <div class="course-top">
-        <div class="course-icon">🎓</div>
-        <div class="course-info">
-          <div class="course-name">Training</div>
-          <div class="course-count">0 of 5 videos</div>
+      <div class="course-card">
+        <div class="course-top">
+          <div class="course-icon">🎓</div>
+          <div class="course-info"><div class="course-name">Training</div><div class="course-count">0 of 5 videos</div></div>
+          <div class="course-pct zero">0%</div>
         </div>
-        <div class="course-pct zero">0%</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
-    </div>
 
-    <div class="course-card">
-      <div class="course-top">
-        <div class="course-icon">💵</div>
-        <div class="course-info">
-          <div class="course-name">American Refunds</div>
-          <div class="course-count">0 of 6 videos</div>
+      <div class="course-card">
+        <div class="course-top">
+          <div class="course-icon">💵</div>
+          <div class="course-info"><div class="course-name">American Refunds</div><div class="course-count">0 of 6 videos</div></div>
+          <div class="course-pct zero">0%</div>
         </div>
-        <div class="course-pct zero">0%</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
-    </div>
 
-    <div class="course-card">
-      <div class="course-top">
-        <div class="course-icon">⬇</div>
-        <div class="course-info">
-          <div class="course-name">Recovery PRO</div>
-          <div class="course-count">2 of 5 videos</div>
+      <div class="course-card">
+        <div class="course-top">
+          <div class="course-icon">⬇</div>
+          <div class="course-info"><div class="course-name">Recovery PRO</div><div class="course-count">2 of 5 videos</div></div>
+          <div class="course-pct">40%</div>
         </div>
-        <div class="course-pct">40%</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:40%"></div></div>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:40%"></div></div>
-    </div>
 
-    <div class="course-card">
-      <div class="course-top">
-        <div class="course-icon">💳</div>
-        <div class="course-info">
-          <div class="course-name">PayPal Bonus</div>
-          <div class="course-count">0 of 3 videos</div>
+      <div class="course-card">
+        <div class="course-top">
+          <div class="course-icon">💳</div>
+          <div class="course-info"><div class="course-name">PayPal Bonus</div><div class="course-count">0 of 3 videos</div></div>
+          <div class="course-pct zero">0%</div>
         </div>
-        <div class="course-pct zero">0%</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
-    </div>
 
-    <div class="course-card">
-      <div class="course-top">
-        <div class="course-icon">🛒</div>
-        <div class="course-info">
-          <div class="course-name">Amazon Affiliate</div>
-          <div class="course-count">0 of 12 videos</div>
+      <div class="course-card">
+        <div class="course-top">
+          <div class="course-icon">🛒</div>
+          <div class="course-info"><div class="course-name">Amazon Affiliate</div><div class="course-count">0 of 12 videos</div></div>
+          <div class="course-pct zero">0%</div>
         </div>
-        <div class="course-pct zero">0%</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
-    </div>
 
-    <div class="course-card">
-      <div class="course-top">
-        <div class="course-icon">📖</div>
-        <div class="course-info">
-          <div class="course-name">Marketing Academy</div>
-          <div class="course-count">0 of 8 quizzes</div>
+      <div class="course-card">
+        <div class="course-top">
+          <div class="course-icon">📖</div>
+          <div class="course-info"><div class="course-name">Marketing Academy</div><div class="course-count">0 of 8 quizzes</div></div>
+          <div class="course-pct zero">0%</div>
         </div>
-        <div class="course-pct zero">0%</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
-    </div>
 
-  </div>
-</main>
+    </div>
+  </main>
+</div>
 
 <script>
-  // Countdown timer starting from screenshot values
+  // ── Countdown ──
   const target = new Date();
   target.setDate(target.getDate() + 59);
   target.setHours(target.getHours() + 21);
   target.setMinutes(target.getMinutes() + 34);
   target.setSeconds(target.getSeconds() + 57);
 
-  function updateCountdown() {
-    const now = new Date();
-    const diff = Math.max(0, target - now);
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('cd-days').textContent  = String(d).padStart(2,'0');
-    document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
-    document.getElementById('cd-mins').textContent  = String(m).padStart(2,'0');
-    document.getElementById('cd-secs').textContent  = String(s).padStart(2,'0');
+  function tick() {
+    const diff = Math.max(0, target - new Date());
+    document.getElementById('cd-days').textContent  = String(Math.floor(diff / 86400000)).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(Math.floor(diff % 86400000 / 3600000)).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(Math.floor(diff % 3600000 / 60000)).padStart(2,'0');
+    document.getElementById('cd-secs').textContent  = String(Math.floor(diff % 60000 / 1000)).padStart(2,'0');
   }
+  tick();
+  setInterval(tick, 1000);
 
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+  // ── Mobile sidebar ──
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('overlay');
+  const hamburger= document.getElementById('hamburger');
 
-  // Sidebar toggle (mobile only)
-  const sidebar   = document.getElementById('sidebar');
-  const overlay   = document.getElementById('overlay');
-  const hamburger = document.getElementById('hamburger');
+  function open()  { sidebar.classList.add('open');    overlay.classList.add('open'); }
+  function close() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
 
-  function openSidebar() {
-    sidebar.classList.add('open');
-    overlay.classList.add('open');
-  }
-
-  function closeSidebar() {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('open');
-  }
-
-  hamburger.addEventListener('click', () => {
-    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-  });
-
-  overlay.addEventListener('click', closeSidebar);
-
-  // Close on nav click (mobile only)
-  document.querySelectorAll('.nav-item').forEach(el => {
-    el.addEventListener('click', () => {
-      if (window.innerWidth <= 768) closeSidebar();
-    });
-  });
+  hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? close() : open());
+  overlay.addEventListener('click', close);
+  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => { if (window.innerWidth <= 768) close(); }));
 </script>
 </body>
 </html>
