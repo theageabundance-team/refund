@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Tracker — Member's Area</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: #1a2e1a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0 16px;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px 24px;
+  }
+
+  .brand-icon {
+    width: 40px; height: 40px;
+    background: #2d4a2d;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .brand-name { font-size: 17px; font-weight: 700; line-height: 1.1; }
+  .brand-sub  { font-size: 10px; color: #8aab8a; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Progress */
+  .progress-box {
+    margin: 0 16px 20px;
+    background: #243824;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .progress-ring-wrap {
+    position: relative;
+    width: 48px; height: 48px;
+    flex-shrink: 0;
+  }
+
+  .progress-ring-wrap svg { transform: rotate(-90deg); }
+
+  .progress-pct {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #5cb85c;
+  }
+
+  .progress-label { font-size: 10px; color: #8aab8a; text-transform: uppercase; letter-spacing: 0.07em; }
+  .progress-count { font-size: 13px; font-weight: 600; color: #fff; }
+
+  /* Nav */
+  .nav-section-label {
+    padding: 12px 20px 6px;
+    font-size: 10px;
+    color: #5a7a5a;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    color: #b0c8b0;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    border-radius: 6px;
+    margin: 1px 8px;
+  }
+
+  .nav-item:hover { background: #2d4a2d; color: #fff; }
+
+  .nav-item.active {
+    background: #2e7d32;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: #4a6a4a;
+    color: #b0c8b0;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .sidebar-cta {
+    margin: auto 16px 0;
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: calc(100% - 32px);
+    margin-top: 24px;
+  }
+
+  .sidebar-cta:hover { background: #256428; }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 260px;
+    flex: 1;
+    padding: 32px;
+    min-height: 100vh;
+  }
+
+  /* Processing card */
+  .processing-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e8e8e8;
+    padding: 36px 32px;
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .processing-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #2e7d32, #66bb6a);
+  }
+
+  .processing-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2e7d32;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    background: #2e7d32;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .processing-sub {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Countdown */
+  .countdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .cd-block {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 14px 18px;
+    min-width: 78px;
+    text-align: center;
+  }
+
+  .cd-num {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1;
+  }
+
+  .cd-label {
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    vertical-align: super;
+    font-weight: 600;
+  }
+
+  .cd-sep {
+    font-size: 30px;
+    color: #ccc;
+    font-weight: 300;
+    margin: 0 2px;
+    line-height: 1;
+  }
+
+  .processing-hint {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  .btn-watch {
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    transition: background .15s;
+  }
+
+  .btn-watch:hover { background: #256428; }
+
+  .warning-box {
+    background: #fff5f5;
+    border: 1px solid #ffd6d6;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: #c0392b;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .warning-box .warn-icon { flex-shrink: 0; font-size: 15px; }
+
+  .support-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #555;
+    flex-wrap: wrap;
+  }
+
+  .support-row strong { color: #333; }
+
+  .contact-btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-contact {
+    border: 1.5px solid #2e7d32;
+    background: transparent;
+    color: #2e7d32;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+
+  .btn-contact:hover { background: #2e7d32; color: #fff; }
+
+  /* Courses */
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 18px;
+  }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .course-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+    padding: 20px;
+    cursor: pointer;
+    transition: box-shadow .15s, border-color .15s;
+  }
+
+  .course-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); border-color: #c8dcc8; }
+
+  .course-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .course-icon {
+    width: 38px; height: 38px;
+    background: #f0f4f0;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .course-info { flex: 1; }
+  .course-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .course-count { font-size: 12px; color: #999; margin-top: 2px; }
+
+  .course-pct {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2e7d32;
+  }
+
+  .course-pct.zero { color: #999; }
+
+  .progress-bar-wrap {
+    height: 4px;
+    background: #eee;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #2e7d32;
+    border-radius: 2px;
+    transition: width .3s;
+  }
+
+  /* ── MOBILE HEADER (hamburger bar) ── */
+  .mobile-header {
+    display: none;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    padding: 14px 16px;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .hamburger {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 2px 6px;
+    line-height: 1;
+    position: absolute;
+    left: 16px;
+  }
+
+  .mobile-brand { color: #1a1a1a; font-weight: 700; font-size: 17px; }
+
+  /* Overlay (used on mobile when sidebar is open) */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 99;
+  }
+  .overlay.open { display: block; }
+
+  /* ── RESPONSIVE — MOBILE ── */
+  @media (max-width: 768px) {
+    /* Show hamburger bar */
+    .mobile-header { display: flex; }
+
+    /* Sidebar hides off-screen by default; slides in when .open */
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform .25s ease;
+    }
+    .sidebar.open { transform: translateX(0); }
+
+    /* Content fills full width */
+    .main { margin-left: 0; padding: 16px; }
+
+    /* Tighter grid */
+    .courses-grid { grid-template-columns: 1fr; }
+
+    .countdown { gap: 4px; }
+    .cd-block { min-width: 60px; padding: 10px 12px; }
+    .cd-num { font-size: 28px; }
+
+    .contact-btns { flex-direction: column; align-items: stretch; }
+    .btn-contact { justify-content: center; }
+  }
+
+  /* Tablet: 2-col grid, sidebar still fixed */
+  @media (min-width: 769px) and (max-width: 1100px) {
+    .courses-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Mobile header (hidden on desktop via CSS) -->
+<div class="mobile-header" id="mobileHeader">
+  <button class="hamburger" id="hamburger">☰</button>
+  <span class="mobile-brand">Dashboard</span>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">📍</div>
+    <div>
+      <div class="brand-name">Green Tracker</div>
+      <div class="brand-sub">Member's Area</div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-box">
+    <div class="progress-ring-wrap">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#3a5a3a" stroke-width="4"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4"
+          stroke-dasharray="125.6" stroke-dashoffset="108" stroke-linecap="round"/>
+      </svg>
+      <div class="progress-pct">14%</div>
+    </div>
+    <div>
+      <div class="progress-label">Progress</div>
+      <div class="progress-count">1 of 7 complete</div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <a class="nav-item active" href="#">
+    <span class="nav-icon">▦</span> Dashboard
+  </a>
+
+  <div class="nav-section-label">Recovery</div>
+  <a class="nav-item" href="#"><span class="nav-icon">🎓</span> Training</a>
+  <a class="nav-item" href="#"><span class="nav-icon">💵</span> American Refunds</a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">⬇</span> Recovery PRO
+    <span class="nav-badge">2/5</span>
+  </a>
+
+  <div class="nav-section-label">Bonus</div>
+  <a class="nav-item" href="#"><span class="nav-icon">💳</span> PayPal Bonus</a>
+  <a class="nav-item" href="#"><span class="nav-icon">🛒</span> Amazon Affiliate</a>
+  <a class="nav-item" href="#"><span class="nav-icon">📖</span> Marketing Academy</a>
+  <a class="nav-item" href="#"><span class="nav-icon">🔧</span> Support</a>
+
+  <button class="sidebar-cta">📞 +1 (866) 959-1615</button>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Processing card -->
+  <div class="processing-card">
+    <div class="processing-status">
+      <div class="status-dot"></div>
+      Processing
+    </div>
+    <div class="processing-sub">Funds available for withdrawal in</div>
+
+    <div class="countdown">
+      <div class="cd-block">
+        <span class="cd-num" id="cd-days">59</span><span class="cd-label"> D</span>
+      </div>
+      <div class="cd-sep">:</div>
+      <div class="cd-block">
+        <span class="cd-num" id="cd-hours">21</span><span class="cd-label"> H</span>
+      </div>
+      <div class="cd-sep">:</div>
+      <div class="cd-block">
+        <span class="cd-num" id="cd-mins">34</span><span class="cd-label"> M</span>
+      </div>
+      <div class="cd-sep">:</div>
+      <div class="cd-block">
+        <span class="cd-num" id="cd-secs">57</span><span class="cd-label"> S</span>
+      </div>
+    </div>
+
+    <p class="processing-hint">
+      Watch the tutorial videos to <strong>advance your withdrawal date</strong>.
+    </p>
+
+    <button class="btn-watch">▶ Watch Tutorial Videos</button>
+
+    <div class="warning-box">
+      <span class="warn-icon">⊘</span>
+      <span>Do NOT contact DigiStore, Hotmart, ClickBank, or BuyGoods directly. This will delay your withdrawal and result in disqualification.</span>
+    </div>
+
+    <div class="support-row">
+      🎧 <strong>Having issues?</strong> Contact us directly.
+    </div>
+    <div class="contact-btns">
+      <a class="btn-contact" href="tel:+18669591615">📞 +1 (866) 959-1615</a>
+      <a class="btn-contact" href="mailto:systemushelp@gmail.com">✉ systemushelp@gmail.com</a>
+    </div>
+  </div>
+
+  <!-- Courses -->
+  <h2 class="section-title">Your Courses</h2>
+  <div class="courses-grid">
+
+    <div class="course-card">
+      <div class="course-top">
+        <div class="course-icon">🎓</div>
+        <div class="course-info">
+          <div class="course-name">Training</div>
+          <div class="course-count">0 of 5 videos</div>
+        </div>
+        <div class="course-pct zero">0%</div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="course-card">
+      <div class="course-top">
+        <div class="course-icon">💵</div>
+        <div class="course-info">
+          <div class="course-name">American Refunds</div>
+          <div class="course-count">0 of 6 videos</div>
+        </div>
+        <div class="course-pct zero">0%</div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="course-card">
+      <div class="course-top">
+        <div class="course-icon">⬇</div>
+        <div class="course-info">
+          <div class="course-name">Recovery PRO</div>
+          <div class="course-count">2 of 5 videos</div>
+        </div>
+        <div class="course-pct">40%</div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:40%"></div></div>
+    </div>
+
+    <div class="course-card">
+      <div class="course-top">
+        <div class="course-icon">💳</div>
+        <div class="course-info">
+          <div class="course-name">PayPal Bonus</div>
+          <div class="course-count">0 of 3 videos</div>
+        </div>
+        <div class="course-pct zero">0%</div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="course-card">
+      <div class="course-top">
+        <div class="course-icon">🛒</div>
+        <div class="course-info">
+          <div class="course-name">Amazon Affiliate</div>
+          <div class="course-count">0 of 12 videos</div>
+        </div>
+        <div class="course-pct zero">0%</div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="course-card">
+      <div class="course-top">
+        <div class="course-icon">📖</div>
+        <div class="course-info">
+          <div class="course-name">Marketing Academy</div>
+          <div class="course-count">0 of 8 quizzes</div>
+        </div>
+        <div class="course-pct zero">0%</div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Countdown timer starting from screenshot values
+  const target = new Date();
+  target.setDate(target.getDate() + 59);
+  target.setHours(target.getHours() + 21);
+  target.setMinutes(target.getMinutes() + 34);
+  target.setSeconds(target.getSeconds() + 57);
+
+  function updateCountdown() {
+    const now = new Date();
+    const diff = Math.max(0, target - now);
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-days').textContent  = String(d).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(m).padStart(2,'0');
+    document.getElementById('cd-secs').textContent  = String(s).padStart(2,'0');
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // Sidebar toggle (mobile only)
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('overlay');
+  const hamburger = document.getElementById('hamburger');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  }
+
+  hamburger.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+
+  // Close on nav click (mobile only)
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', () => {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+</script>
+</body>
+</html>
