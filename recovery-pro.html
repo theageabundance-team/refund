@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Tracker — Recovery PRO</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #efefef; color: #333; min-height: 100vh; overflow-x: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar { width: 260px; background: #1a2e1a; color: #fff; display: flex; flex-direction: column; padding: 24px 0 16px; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200; overflow-y: auto; transition: transform .25s ease; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 20px 24px; }
+  .brand-icon { width: 40px; height: 40px; background: #2d4a2d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .brand-name { font-size: 17px; font-weight: 700; line-height: 1.1; }
+  .brand-sub  { font-size: 10px; color: #8aab8a; letter-spacing: 0.08em; text-transform: uppercase; }
+  .progress-box { margin: 0 16px 20px; background: #243824; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+  .progress-ring-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+  .progress-ring-wrap svg { transform: rotate(-90deg); }
+  .progress-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5cb85c; }
+  .progress-label { font-size: 10px; color: #8aab8a; text-transform: uppercase; letter-spacing: 0.07em; }
+  .progress-count-txt { font-size: 13px; font-weight: 600; color: #fff; }
+  .nav-section-label { padding: 12px 20px 6px; font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #b0c8b0; text-decoration: none; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; border-radius: 6px; margin: 1px 8px; }
+  .nav-item:hover { background: #2d4a2d; color: #fff; }
+  .nav-item.active { background: #2e7d32; color: #fff; font-weight: 600; }
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: #4a6a4a; color: #b0c8b0; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+  .sidebar-cta { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 32px); margin: 24px 16px 0; }
+  .sidebar-cta:hover { background: #256428; }
+
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 150; }
+  .overlay.open { display: block; }
+  .mobile-header { display: none; background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0 16px; height: 52px; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; }
+  .hamburger { position: absolute; left: 16px; background: none; border: none; color: #333; font-size: 20px; cursor: pointer; padding: 4px; line-height: 1; }
+  .mobile-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar-spacer { width: 260px; flex-shrink: 0; }
+  .main { flex: 1; padding: 32px; min-width: 0; }
+
+  /* ── COURSE HEADER ── */
+  .course-header { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 28px 32px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .course-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+  .course-header-top { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
+  .course-header-icon { width: 52px; height: 52px; background: #e8f5e9; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .course-header-info { flex: 1; }
+  .course-header-info h1 { font-size: 22px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
+  .course-header-info p { font-size: 14px; color: #666; }
+  .course-video-count { background: #f5f5f5; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
+  .progress-section { border-top: 1px solid #f0f0f0; padding-top: 16px; }
+  .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-row-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
+  .progress-row-pct { font-size: 14px; font-weight: 700; color: #2e7d32; }
+  .progress-bar-wrap { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+  .progress-bar-fill { height: 100%; background: #2e7d32; border-radius: 3px; transition: width .3s; }
+  .progress-completed { font-size: 13px; color: #888; }
+
+  /* ── PHASE BLOCK ── */
+  .phase-block { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; margin-bottom: 16px; overflow: hidden; }
+  .phase-header { display: flex; align-items: center; gap: 14px; padding: 18px 24px; cursor: pointer; user-select: none; border-bottom: 1px solid #f0f0f0; }
+  .phase-num { width: 32px; height: 32px; background: #e8f5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .phase-title { font-size: 17px; font-weight: 700; color: #1a1a1a; flex: 1; }
+  .phase-meta { font-size: 13px; color: #888; margin-right: 10px; }
+  .phase-chevron { font-size: 18px; color: #aaa; transition: transform .2s; line-height: 1; }
+  .phase-chevron.open { transform: rotate(180deg); }
+  .phase-body { padding: 0 24px 24px; }
+
+  /* ── VIDEO ITEM ── */
+  .video-item { padding-top: 24px; }
+  .video-item + .video-item { border-top: 1px solid #f0f0f0; }
+
+  /* Completed state */
+  .video-item.is-done { background: #f9fef9; border-radius: 10px; padding: 16px; margin-top: 16px; border: 1px solid #c8e6c9; }
+  .video-item.is-done + .video-item { border-top: none; }
+
+  .video-top-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .check-icon { width: 22px; height: 22px; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; flex-shrink: 0; }
+  .video-num-circle { width: 28px; height: 28px; background: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #555; flex-shrink: 0; }
+  .video-num-circle.done { background: #e8f5e9; color: #2e7d32; }
+  .video-title-text { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+  .extra-badge { background: #f0f0f0; color: #666; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 8px; }
+
+  /* Completed row */
+  .completed-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+  .completed-label { display: flex; align-items: center; gap: 8px; color: #2e7d32; font-size: 14px; font-weight: 600; }
+  .watched-tag { font-size: 12px; color: #2e7d32; font-weight: 600; background: #e8f5e9; padding: 4px 10px; border-radius: 6px; }
+
+  /* Video player */
+  .video-player { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 10px; margin: 14px 0; position: relative; overflow: hidden; cursor: pointer; }
+  .video-bg { width: 100%; height: 100%; object-fit: cover; }
+  .video-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 64px; height: 64px; background: rgba(46,125,50,0.85); border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .video-play-btn::after { content: ''; border-style: solid; border-width: 11px 0 11px 19px; border-color: transparent transparent transparent #fff; margin-left: 4px; }
+
+  /* Action buttons */
+  .btn-green-solid { width: 100%; background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; text-decoration: none; transition: background .15s; }
+  .btn-green-solid:hover { background: #256428; }
+  .btn-green-outline { width: 100%; background: #fff; color: #2e7d32; border: 1.5px solid #2e7d32; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; transition: background .15s, color .15s; }
+  .btn-green-outline:hover { background: #2e7d32; color: #fff; }
+  .btn-green-outline:disabled { background: #e8f5e9; color: #2e7d32; cursor: default; opacity: 1; }
+
+  /* Take Action */
+  .take-action { background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; padding: 20px 24px; margin-top: 16px; }
+  .take-action-header { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 14px; }
+
+  /* Next Step */
+  .next-step-card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 8px; }
+  .next-step-label { font-size: 11px; font-weight: 700; color: #2e7d32; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .next-step-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .next-step-desc  { font-size: 13px; color: #777; }
+  .btn-continue { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 12px 22px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: background .15s; text-decoration: none; }
+  .btn-continue:hover { background: #256428; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .mobile-header { display: flex; }
+    .sidebar { transform: translateX(-260px); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-spacer { display: none; }
+    .main { padding: 16px; }
+    .course-header { padding: 20px; }
+    .course-header-top { flex-wrap: wrap; }
+    .phase-body { padding: 0 16px 16px; }
+    .next-step-card { flex-direction: column; align-items: flex-start; }
+    .btn-continue { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mobile-header">
+  <button class="hamburger" id="hamburger">☰</button>
+  <span class="mobile-title">Recovery PRO</span>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">📍</div>
+    <div><div class="brand-name">Green Tracker</div><div class="brand-sub">Member's Area</div></div>
+  </div>
+  <div class="progress-box">
+    <div class="progress-ring-wrap">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#3a5a3a" stroke-width="4"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4" stroke-dasharray="125.6" stroke-dashoffset="108" stroke-linecap="round"/>
+      </svg>
+      <div class="progress-pct">14%</div>
+    </div>
+    <div><div class="progress-label">Progress</div><div class="progress-count-txt">1 of 7 complete</div></div>
+  </div>
+  <a class="nav-item" href="index.html"><span class="nav-icon">▦</span> Dashboard</a>
+  <div class="nav-section-label">Recovery</div>
+  <a class="nav-item" href="index.html"><span class="nav-icon">🎓</span> Training</a>
+  <a class="nav-item" href="american-refunds.html"><span class="nav-icon">💵</span> American Refunds</a>
+  <a class="nav-item active" href="#"><span class="nav-icon">⬇</span> Recovery PRO<span class="nav-badge">2/5</span></a>
+  <div class="nav-section-label">Bonus</div>
+  <a class="nav-item" href="#"><span class="nav-icon">💳</span> PayPal Bonus</a>
+  <a class="nav-item" href="#"><span class="nav-icon">🛒</span> Amazon Affiliate</a>
+  <a class="nav-item" href="#"><span class="nav-icon">📖</span> Marketing Academy</a>
+  <a class="nav-item" href="#"><span class="nav-icon">🔧</span> Support</a>
+  <button class="sidebar-cta">📞 +1 (866) 959-1615</button>
+</aside>
+
+<div class="layout">
+  <div class="sidebar-spacer"></div>
+  <main class="main">
+
+    <!-- Course Header -->
+    <div class="course-header">
+      <div class="course-header-top">
+        <div class="course-header-icon">⬇</div>
+        <div class="course-header-info">
+          <h1>Recovery PRO</h1>
+          <p>Advanced recovery strategies with broker and tools access. Watch the videos then use the action buttons below.</p>
+        </div>
+        <div class="course-video-count">5 Videos</div>
+      </div>
+      <div class="progress-section">
+        <div class="progress-row">
+          <span class="progress-row-label">Your Progress</span>
+          <span class="progress-row-pct" id="pct">40%</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar" style="width:40%"></div></div>
+        <div class="progress-completed" id="completed">2 of 5 completed</div>
+      </div>
+    </div>
+
+    <!-- PHASE 1: Learn -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase('phase1')">
+        <div class="phase-num">📖</div>
+        <div class="phase-title">Phase 1: Learn</div>
+        <span class="phase-meta">Intro + Video 1</span>
+        <span class="phase-chevron open" id="chev-phase1">∧</span>
+      </div>
+      <div class="phase-body" id="phase1">
+
+        <!-- Introduction — already watched -->
+        <div class="video-item is-done" id="item-intro">
+          <div class="video-top-row">
+            <div class="check-icon">✓</div>
+            <div class="video-title-text">Introduction</div>
+            <span class="extra-badge">Extra</span>
+          </div>
+          <div class="video-player" style="background: linear-gradient(135deg,#3a6b3e,#1a3d1c);">
+            <div class="video-play-btn"></div>
+          </div>
+          <div class="completed-row">
+            <span class="completed-label">✅ Completed</span>
+            <span class="watched-tag">Watched</span>
+          </div>
+        </div>
+
+        <!-- Getting Started — already watched -->
+        <div class="video-item is-done" id="item-gs">
+          <div class="video-top-row">
+            <div class="check-icon">✓</div>
+            <div class="video-title-text">Getting Started</div>
+          </div>
+          <div class="video-player" style="background: linear-gradient(135deg,#3d5c3f,#1e3b20);">
+            <div class="video-play-btn"></div>
+          </div>
+          <div class="completed-row">
+            <span class="completed-label">✅ Completed</span>
+            <span class="watched-tag">Watched</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PHASE 2: Setup -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase('phase2')">
+        <div class="phase-num">⚙️</div>
+        <div class="phase-title">Phase 2: Setup</div>
+        <span class="phase-meta">Videos 2–3</span>
+        <span class="phase-chevron open" id="chev-phase2">∧</span>
+      </div>
+      <div class="phase-body" id="phase2">
+
+        <!-- Video 2 -->
+        <div class="video-item">
+          <div class="video-top-row">
+            <div class="video-num-circle" id="num-2">2</div>
+            <div class="video-title-text">Platform Setup</div>
+          </div>
+          <div class="video-player" style="background: linear-gradient(135deg,#3a6b3e,#1a3d1c);">
+            <div class="video-play-btn"></div>
+          </div>
+          <button class="btn-green-outline" id="btn-2" onclick="markWatched(2)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 3 -->
+        <div class="video-item">
+          <div class="video-top-row">
+            <div class="video-num-circle" id="num-3">3</div>
+            <div class="video-title-text">Configuration</div>
+          </div>
+          <div class="video-player" style="background: linear-gradient(135deg,#2d5a30,#163318);">
+            <div class="video-play-btn"></div>
+          </div>
+          <button class="btn-green-outline" id="btn-3" onclick="markWatched(3)">✓ Mark as Watched</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PHASE 3: Earn -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase('phase3')">
+        <div class="phase-num">💵</div>
+        <div class="phase-title">Phase 3: Earn</div>
+        <span class="phase-meta">Video 4 + Actions</span>
+        <span class="phase-chevron open" id="chev-phase3">∧</span>
+      </div>
+      <div class="phase-body" id="phase3">
+
+        <!-- Video 4 -->
+        <div class="video-item">
+          <div class="video-top-row">
+            <div class="video-num-circle" id="num-4">4</div>
+            <div class="video-title-text">Advanced Strategies</div>
+          </div>
+          <div class="video-player" style="background: linear-gradient(135deg,#3a6b3e,#1a3d1c);">
+            <div class="video-play-btn"></div>
+          </div>
+          <button class="btn-green-outline" id="btn-4" onclick="markWatched(4)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 5 -->
+        <div class="video-item">
+          <div class="video-top-row">
+            <div class="video-num-circle" id="num-5">5</div>
+            <div class="video-title-text">Scaling Up</div>
+          </div>
+          <div class="video-player" style="background: linear-gradient(135deg,#2d5a30,#163318);">
+            <div class="video-play-btn"></div>
+          </div>
+          <button class="btn-green-outline" id="btn-5" onclick="markWatched(5)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Take Action Now -->
+        <div class="take-action">
+          <div class="take-action-header">🚀 Take Action Now</div>
+          <a href="#" class="btn-green-solid">📈 Access Broker Platform</a>
+          <a href="#" class="btn-green-solid">✈ Join Telegram Group</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Next Step -->
+    <div class="next-step-card">
+      <div>
+        <div class="next-step-label">Next Step</div>
+        <div class="next-step-title">PayPal NOW</div>
+        <div class="next-step-desc">Complete PayPal bonus tutorials</div>
+      </div>
+      <a href="#" class="btn-continue">Continue to PayPal NOW ›</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const TOTAL = 5;
+  // Start with 2 already watched (intro + getting started)
+  const watched = JSON.parse(localStorage.getItem('rp_watched') || '["intro","gs"]');
+
+  function updateProgress() {
+    const count = watched.length;
+    const pct = Math.round(count / TOTAL * 100);
+    document.getElementById('pct').textContent = pct + '%';
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('completed').textContent = count + ' of ' + TOTAL + ' completed';
+  }
+
+  function markWatched(num) {
+    const key = String(num);
+    if (!watched.includes(key)) { watched.push(key); localStorage.setItem('rp_watched', JSON.stringify(watched)); }
+    const numEl = document.getElementById('num-' + num);
+    if (numEl) { numEl.classList.add('done'); numEl.textContent = '✓'; }
+    const btn = document.getElementById('btn-' + num);
+    if (btn) { btn.textContent = '✓ Watched'; btn.style.background = '#e8f5e9'; btn.disabled = true; }
+    updateProgress();
+  }
+
+  function togglePhase(id) {
+    const body = document.getElementById(id);
+    const chev = document.getElementById('chev-' + id);
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    chev.classList.toggle('open', !isOpen);
+    chev.textContent = isOpen ? '∨' : '∧';
+  }
+
+  // Restore state
+  watched.forEach(k => {
+    if (!isNaN(k)) {
+      const numEl = document.getElementById('num-' + k);
+      if (numEl) { numEl.classList.add('done'); numEl.textContent = '✓'; }
+      const btn = document.getElementById('btn-' + k);
+      if (btn) { btn.textContent = '✓ Watched'; btn.style.background = '#e8f5e9'; btn.disabled = true; }
+    }
+  });
+  updateProgress();
+
+  // Mobile sidebar
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('open'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+  document.getElementById('hamburger').addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+</script>
+</body>
+</html>
