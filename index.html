@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const _SB=window.supabase.createClient('https://cgyoeezgjrfvbdvzaweu.supabase.co','sb_publishable_AOp13C_-2A2vwCagh1w_ug_tWp4-HzJ');
+function _sid(){let s=localStorage.getItem('gt_sid');if(!s){s=crypto.randomUUID();localStorage.setItem('gt_sid',s);}return s;}
+async function _load(){try{const{data}=await _SB.from('user_progress').select('data').eq('session_id',_sid()).maybeSingle();return data?.data||{};}catch(e){return{};}}
+async function _save(key,val){try{const d=await _load();d[key]=val;d.updated_at=new Date().toISOString();await _SB.from('user_progress').upsert({session_id:_sid(),data:d,updated_at:new Date().toISOString()});}catch(e){}}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Green Tracker — Member's Area</title>
@@ -356,23 +363,39 @@
     if (window.innerWidth <= 768) closeSidebar();
   }
 
-  // ── Countdown ──
-  const target = new Date();
-  target.setDate(target.getDate() + 59);
-  target.setHours(target.getHours() + 21);
-  target.setMinutes(target.getMinutes() + 34);
-  target.setSeconds(target.getSeconds() + 57);
-  function tick() {
-    const diff = Math.max(0, target - new Date());
-    document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
-    document.getElementById('cd-hours').textContent = String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
-    document.getElementById('cd-mins').textContent  = String(Math.floor(diff%3600000/60000)).padStart(2,'0');
-    document.getElementById('cd-secs').textContent  = String(Math.floor(diff%60000/1000)).padStart(2,'0');
-  }
-  tick(); setInterval(tick, 1000);
-
-  // ── Training progress ──
+  // ── Countdown + Training progress (Supabase) ──
   const watched = JSON.parse(localStorage.getItem('training_watched') || '[]');
+  let _countdownTimer;
+  function startTick(target) {
+    if (_countdownTimer) clearInterval(_countdownTimer);
+    function tick() {
+      const diff = Math.max(0, target - new Date());
+      document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
+      document.getElementById('cd-hours').textContent = String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+      document.getElementById('cd-mins').textContent  = String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+      document.getElementById('cd-secs').textContent  = String(Math.floor(diff%60000/1000)).padStart(2,'0');
+    }
+    tick(); _countdownTimer = setInterval(tick, 1000);
+  }
+  // Init from localStorage first (fast)
+  const savedTarget = localStorage.getItem('gt_countdown');
+  const initTarget = savedTarget ? new Date(savedTarget) : (() => { const t=new Date(); t.setDate(t.getDate()+59); t.setHours(t.getHours()+21); t.setMinutes(t.getMinutes()+34); t.setSeconds(t.getSeconds()+57); return t; })();
+  startTick(initTarget);
+  // Then sync with Supabase
+  (async () => {
+    const sb = await _load();
+    // Countdown
+    let tgt = initTarget;
+    if (sb.countdown_target) { tgt = new Date(sb.countdown_target); localStorage.setItem('gt_countdown', sb.countdown_target); startTick(tgt); }
+    else { const iso = initTarget.toISOString(); localStorage.setItem('gt_countdown', iso); _save('countdown_target', iso); }
+    // Training watched
+    if (sb.training && Array.isArray(sb.training)) {
+      sb.training.forEach(n => { if (!watched.includes(n)) watched.push(n); });
+      localStorage.setItem('training_watched', JSON.stringify(watched));
+      watched.forEach(n => { const el=document.getElementById('num-'+n); if(el){el.classList.add('watched');el.textContent='✓';} });
+      updateProgress();
+    }
+  })();
   function updateProgress() {
     const count = watched.length;
     const pct = Math.round(count / 5 * 100);
@@ -381,7 +404,7 @@
     document.getElementById('trainingCompleted').textContent = count + ' of 5 completed';
   }
   function markWatched(num) {
-    if (!watched.includes(num)) { watched.push(num); localStorage.setItem('training_watched', JSON.stringify(watched)); }
+    if (!watched.includes(num)) { watched.push(num); localStorage.setItem('training_watched', JSON.stringify(watched)); _save('training', watched); }
     const numEl = document.getElementById('num-' + num);
     numEl.classList.add('watched'); numEl.textContent = '✓';
     const btn = event.target;

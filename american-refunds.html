@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const _SB=window.supabase.createClient('https://cgyoeezgjrfvbdvzaweu.supabase.co','sb_publishable_AOp13C_-2A2vwCagh1w_ug_tWp4-HzJ');
+function _sid(){let s=localStorage.getItem('gt_sid');if(!s){s=crypto.randomUUID();localStorage.setItem('gt_sid',s);}return s;}
+async function _load(){try{const{data}=await _SB.from('user_progress').select('data').eq('session_id',_sid()).maybeSingle();return data?.data||{};}catch(e){return{};}}
+async function _save(key,val){try{const d=await _load();d[key]=val;d.updated_at=new Date().toISOString();await _SB.from('user_progress').upsert({session_id:_sid(),data:d,updated_at:new Date().toISOString()});}catch(e){}}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Green Tracker — American Refunds</title>
@@ -339,6 +346,15 @@
 <script>
   const TOTAL = 6;
   const watched = JSON.parse(localStorage.getItem('ar_watched') || '[]');
+  (async () => {
+    const sb = await _load();
+    if (sb['american_refunds'] && Array.isArray(sb['american_refunds'])) {
+      sb['american_refunds'].forEach(n => { if (!watched.includes(n)) watched.push(n); });
+      localStorage.setItem('ar_watched', JSON.stringify(watched)); _save('american_refunds', watched);
+      watched.forEach(n => { const el=document.getElementById('num-'+n); if(el){el.classList.add('watched');el.textContent='✓';} const btn=document.getElementById('btn-'+n); if(btn){btn.textContent='✓ Watched';btn.style.background='#e8f5e9';btn.disabled=true;} });
+      updateProgress();
+    }
+  })();
 
   function updateProgress() {
     const count = watched.filter(n => n <= 4).length; // only main videos count
@@ -350,7 +366,7 @@
   }
 
   function markWatched(num, total) {
-    if (!watched.includes(num)) { watched.push(num); localStorage.setItem('ar_watched', JSON.stringify(watched)); }
+    if (!watched.includes(num)) { watched.push(num); localStorage.setItem('ar_watched', JSON.stringify(watched)); _save('american_refunds', watched); }
     const numEl = document.getElementById('num-' + num);
     if (numEl && !['⭐'].includes(numEl.textContent)) { numEl.classList.add('watched'); numEl.textContent = '✓'; }
     const btn = document.getElementById('btn-' + num);
