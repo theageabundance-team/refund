@@ -142,11 +142,11 @@ async function _save(key,val){try{const d=await _load();d[key]=val;d.updated_at=
     <div class="progress-ring-wrap">
       <svg width="48" height="48" viewBox="0 0 48 48">
         <circle cx="24" cy="24" r="20" fill="none" stroke="#3a5a3a" stroke-width="4"/>
-        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4" stroke-dasharray="125.6" stroke-dashoffset="108" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4" stroke-dasharray="125.6" stroke-dashoffset="125" stroke-linecap="round" id="sidebar-ring"/>
       </svg>
-      <div class="progress-pct">14%</div>
+      <div class="progress-pct" id="sidebar-pct">0%</div>
     </div>
-    <div><div class="progress-label">Progress</div><div class="progress-count-txt">1 of 7 complete</div></div>
+    <div><div class="progress-label">Progress</div><div class="progress-count-txt" id="sidebar-count">0 of 5 complete</div></div>
   </div>
   <a class="nav-item" href="index.html"><span class="nav-icon">▦</span> Dashboard</a>
   <div class="nav-section-label">Recovery</div>
@@ -403,6 +403,31 @@ async function _save(key,val){try{const d=await _load();d[key]=val;d.updated_at=
   document.getElementById('hamburger').addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
   overlay.addEventListener('click', closeSidebar);
   document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+
+  function updateSidebarProgress() {
+    const modules = [
+      { key: 'training_watched',  total: 5,  def: [] },
+      { key: 'ar_watched',        total: 6,  def: [] },
+      { key: 'rp_watched',        total: 5,  def: ['intro','gs'] },
+      { key: 'pp_watched',        total: 3,  def: [] },
+      { key: 'amz_watched',       total: 11, def: [] },
+    ];
+    let totalW = 0, totalV = 0, done = 0;
+    modules.forEach(m => {
+      const w = JSON.parse(localStorage.getItem(m.key) || JSON.stringify(m.def));
+      totalW += w.length; totalV += m.total;
+      if (w.length >= m.total) done++;
+    });
+    const pct = totalV ? Math.round(totalW / totalV * 100) : 0;
+    const offset = Math.round(125.6 * (1 - pct / 100));
+    const r = document.getElementById('sidebar-ring');
+    const p = document.getElementById('sidebar-pct');
+    const c = document.getElementById('sidebar-count');
+    if (r) r.setAttribute('stroke-dashoffset', offset);
+    if (p) p.textContent = pct + '%';
+    if (c) c.textContent = done + ' of 5 complete';
+  }
+  updateSidebarProgress();
 </script>
 </body>
 </html>
