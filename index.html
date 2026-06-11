@@ -379,7 +379,7 @@ async function _save(key,val){try{const d=await _load();d[key]=val;d.updated_at=
   }
   // Init from localStorage first (fast)
   const savedTarget = localStorage.getItem('gt_countdown');
-  const initTarget = savedTarget ? new Date(savedTarget) : (() => { const t=new Date(); t.setDate(t.getDate()+59); t.setHours(t.getHours()+21); t.setMinutes(t.getMinutes()+34); t.setSeconds(t.getSeconds()+57); return t; })();
+  const initTarget = savedTarget ? new Date(savedTarget) : (() => { const t=new Date(); t.setDate(t.getDate()+60); return t; })();
   startTick(initTarget);
   // Then sync with Supabase
   (async () => {
