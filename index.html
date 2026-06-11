@@ -3,53 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Green Tracker — Training</title>
+<title>Green Tracker — Member's Area</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html, body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #efefef;
-    color: #333;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #efefef; color: #333; min-height: 100vh; overflow-x: hidden; }
 
   /* ── SIDEBAR ── */
-  .sidebar {
-    width: 260px;
-    background: #1a2e1a;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    padding: 24px 0 16px;
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    z-index: 200;
-    overflow-y: auto;
-    transition: transform .25s ease;
-  }
-
+  .sidebar { width: 260px; background: #1a2e1a; color: #fff; display: flex; flex-direction: column; padding: 24px 0 16px; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200; overflow-y: auto; transition: transform .25s ease; }
   .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 20px 24px; }
   .brand-icon { width: 40px; height: 40px; background: #2d4a2d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
   .brand-name { font-size: 17px; font-weight: 700; line-height: 1.1; }
   .brand-sub  { font-size: 10px; color: #8aab8a; letter-spacing: 0.08em; text-transform: uppercase; }
-
   .progress-box { margin: 0 16px 20px; background: #243824; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
   .progress-ring-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
   .progress-ring-wrap svg { transform: rotate(-90deg); }
   .progress-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5cb85c; }
   .progress-label { font-size: 10px; color: #8aab8a; text-transform: uppercase; letter-spacing: 0.07em; }
   .progress-count { font-size: 13px; font-weight: 600; color: #fff; }
-
   .nav-section-label { padding: 12px 20px 6px; font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
-
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #b0c8b0; text-decoration: none; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; border-radius: 6px; margin: 1px 8px; }
   .nav-item:hover { background: #2d4a2d; color: #fff; }
   .nav-item.active { background: #2e7d32; color: #fff; font-weight: 600; }
   .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
   .nav-badge { margin-left: auto; background: #4a6a4a; color: #b0c8b0; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
-
   .sidebar-cta { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 32px); margin: 24px 16px 0; }
   .sidebar-cta:hover { background: #256428; }
 
@@ -65,188 +41,86 @@
   /* ── LAYOUT ── */
   .layout { display: flex; min-height: 100vh; }
   .sidebar-spacer { width: 260px; flex-shrink: 0; }
-
-  /* ── MAIN ── */
   .main { flex: 1; padding: 32px; min-width: 0; }
 
-  /* ── COURSE HEADER CARD ── */
-  .course-header {
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e8e8e8;
-    padding: 28px 32px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .course-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
 
+  /* ── DASHBOARD ── */
+  .processing-card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 36px 32px; text-align: center; margin-bottom: 32px; position: relative; overflow: hidden; }
+  .processing-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+  .processing-status { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 11px; font-weight: 700; color: #2e7d32; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+  .status-dot { width: 7px; height: 7px; background: #2e7d32; border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .processing-sub { font-size: 12px; color: #888; margin-bottom: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .countdown { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: nowrap; }
+  .cd-block { background: #f5f5f5; border-radius: 8px; padding: 14px 18px; min-width: 72px; text-align: center; }
+  .cd-num { font-size: 36px; font-weight: 700; color: #1a1a1a; line-height: 1; }
+  .cd-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; vertical-align: super; font-weight: 600; }
+  .cd-sep { font-size: 28px; color: #ccc; font-weight: 300; line-height: 1; }
+  .processing-hint { font-size: 14px; color: #555; margin-bottom: 20px; }
+  .btn-watch { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 13px 28px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; transition: background .15s; width: 100%; }
+  .btn-watch:hover { background: #256428; }
+  .warning-box { background: #fff5f5; border: 1px solid #ffd6d6; border-radius: 8px; padding: 12px 18px; font-size: 13px; color: #c0392b; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px; text-align: left; }
+  .warn-icon { flex-shrink: 0; font-size: 15px; }
+  .support-row { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: #555; flex-wrap: wrap; margin-bottom: 10px; }
+  .contact-btns { display: flex; flex-direction: column; gap: 10px; }
+  .btn-contact { border: 1.5px solid #2e7d32; background: transparent; color: #2e7d32; border-radius: 7px; padding: 11px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; transition: background .15s, color .15s; }
+  .btn-contact:hover { background: #2e7d32; color: #fff; }
+  .section-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 18px; }
+  .courses-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .course-card { background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; padding: 20px; cursor: pointer; transition: box-shadow .15s; }
+  .course-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .course-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+  .course-icon { width: 38px; height: 38px; background: #f0f4f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .course-info { flex: 1; min-width: 0; }
+  .course-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .course-count { font-size: 12px; color: #999; margin-top: 2px; }
+  .course-pct { font-size: 14px; font-weight: 700; color: #2e7d32; white-space: nowrap; }
+  .course-pct.zero { color: #999; }
+  .progress-bar-wrap { height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: #2e7d32; border-radius: 2px; }
+
+  /* ── TRAINING PAGE ── */
+  .course-header { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 28px 32px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .course-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2e7d32, #66bb6a); }
   .course-header-top { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
   .course-header-icon { width: 52px; height: 52px; background: #e8f5e9; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
   .course-header-info { flex: 1; }
   .course-header-info h1 { font-size: 22px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
   .course-header-info p { font-size: 14px; color: #666; }
   .course-video-count { background: #f5f5f5; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
-
   .progress-section { border-top: 1px solid #f0f0f0; padding-top: 16px; }
   .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .progress-row-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
   .progress-row-pct { font-size: 14px; font-weight: 700; color: #2e7d32; }
-  .progress-bar-wrap { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-  .progress-bar-fill { height: 100%; background: #2e7d32; border-radius: 3px; }
   .progress-completed { font-size: 13px; color: #888; }
-
-  /* ── VIDEO CARD ── */
-  .video-card {
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e8e8e8;
-    padding: 28px 32px;
-    margin-bottom: 16px;
-  }
-
+  .video-card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 28px 32px; margin-bottom: 16px; }
   .video-number-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
   .video-num { width: 28px; height: 28px; background: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #555; flex-shrink: 0; }
   .video-num.watched { background: #e8f5e9; color: #2e7d32; }
   .video-title { font-size: 18px; font-weight: 700; color: #1a1a1a; }
   .video-desc { font-size: 14px; color: #666; margin-bottom: 18px; margin-left: 40px; }
-
-  /* Video player placeholder */
-  .video-player {
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #111;
-    border-radius: 10px;
-    margin-bottom: 14px;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .video-player img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    opacity: 0.85;
-  }
-
-  .video-play-btn {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 72px; height: 72px;
-    background: #2e7d32;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
-  }
-
-  .video-play-btn::after {
-    content: '';
-    border-style: solid;
-    border-width: 13px 0 13px 22px;
-    border-color: transparent transparent transparent #fff;
-    margin-left: 4px;
-  }
-
-  /* Fake video controls bar */
-  .video-controls {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
-    padding: 24px 16px 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
+  .video-player { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 10px; margin-bottom: 14px; position: relative; overflow: hidden; cursor: pointer; }
+  .video-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 72px; height: 72px; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .video-play-btn::after { content: ''; border-style: solid; border-width: 13px 0 13px 22px; border-color: transparent transparent transparent #fff; margin-left: 4px; }
+  .video-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent,rgba(0,0,0,0.7)); padding: 24px 16px 12px; display: flex; align-items: center; gap: 10px; }
   .ctrl-btn { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; padding: 2px; }
   .ctrl-speed { background: rgba(255,255,255,0.2); color: #fff; border: none; border-radius: 4px; padding: 3px 7px; font-size: 11px; font-weight: 700; cursor: pointer; }
   .ctrl-time { color: #fff; font-size: 12px; margin-left: auto; }
   .ctrl-fullscreen { color: #fff; font-size: 14px; cursor: pointer; background: none; border: none; }
-
-  .progress-track {
-    position: absolute;
-    bottom: 42px; left: 16px; right: 16px;
-    height: 3px;
-    background: rgba(255,255,255,0.3);
-    border-radius: 2px;
-  }
+  .progress-track { position: absolute; bottom: 42px; left: 16px; right: 16px; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; }
   .progress-track-fill { width: 0%; height: 100%; background: #2e7d32; border-radius: 2px; }
-
-  /* Action buttons */
-  .btn-green-solid {
-    width: 100%;
-    background: #2e7d32;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    text-decoration: none;
-    transition: background .15s;
-  }
+  .btn-green-solid { width: 100%; background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; text-decoration: none; transition: background .15s; }
   .btn-green-solid:hover { background: #256428; }
-
-  .btn-green-outline {
-    width: 100%;
-    background: #fff;
-    color: #2e7d32;
-    border: 1.5px solid #2e7d32;
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    transition: background .15s, color .15s;
-  }
+  .btn-green-outline { width: 100%; background: #fff; color: #2e7d32; border: 1.5px solid #2e7d32; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; transition: background .15s, color .15s; }
   .btn-green-outline:hover { background: #2e7d32; color: #fff; }
-  .btn-green-outline.watched-done { color: #2e7d32; }
-
-  /* Next step card */
-  .next-step-card {
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e8e8e8;
-    padding: 24px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-top: 8px;
-  }
-
+  .next-step-card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 8px; }
   .next-step-label { font-size: 11px; font-weight: 700; color: #2e7d32; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
   .next-step-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
   .next-step-desc  { font-size: 13px; color: #777; }
-
-  .btn-continue {
-    background: #2e7d32;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 22px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background .15s;
-    text-decoration: none;
-  }
+  .btn-continue { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 12px 22px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: background .15s; }
   .btn-continue:hover { background: #256428; }
 
   /* ── RESPONSIVE ── */
@@ -256,6 +130,11 @@
     .sidebar.open { transform: translateX(0); }
     .sidebar-spacer { display: none; }
     .main { padding: 16px; }
+    .courses-grid { grid-template-columns: 1fr; }
+    .cd-block { min-width: 56px; padding: 10px; }
+    .cd-num { font-size: 26px; }
+    .countdown { gap: 4px; }
+    .cd-sep { font-size: 22px; }
     .course-header { padding: 20px; }
     .course-header-top { flex-wrap: wrap; }
     .video-card { padding: 20px; }
@@ -263,56 +142,46 @@
     .next-step-card { flex-direction: column; align-items: flex-start; }
     .btn-continue { width: 100%; justify-content: center; }
   }
+  @media (min-width: 769px) and (max-width: 1100px) {
+    .courses-grid { grid-template-columns: repeat(2,1fr); }
+  }
 </style>
 </head>
 <body>
 
-<!-- Mobile top bar -->
 <div class="mobile-header" id="mobileHeader">
   <button class="hamburger" id="hamburger">☰</button>
-  <span class="mobile-title">Training</span>
+  <span class="mobile-title" id="mobileTitle">Dashboard</span>
 </div>
 
 <div class="overlay" id="overlay"></div>
 
-<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <div class="brand-icon">📍</div>
-    <div>
-      <div class="brand-name">Green Tracker</div>
-      <div class="brand-sub">Member's Area</div>
-    </div>
+    <div><div class="brand-name">Green Tracker</div><div class="brand-sub">Member's Area</div></div>
   </div>
-
   <div class="progress-box">
     <div class="progress-ring-wrap">
       <svg width="48" height="48" viewBox="0 0 48 48">
         <circle cx="24" cy="24" r="20" fill="none" stroke="#3a5a3a" stroke-width="4"/>
-        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4"
-          stroke-dasharray="125.6" stroke-dashoffset="108" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4" stroke-dasharray="125.6" stroke-dashoffset="108" stroke-linecap="round"/>
       </svg>
       <div class="progress-pct">14%</div>
     </div>
-    <div>
-      <div class="progress-label">Progress</div>
-      <div class="progress-count">1 of 7 complete</div>
-    </div>
+    <div><div class="progress-label">Progress</div><div class="progress-count">1 of 7 complete</div></div>
   </div>
 
-  <a class="nav-item" href="index.html"><span class="nav-icon">▦</span> Dashboard</a>
-
+  <a class="nav-item" id="nav-dashboard" onclick="goTo('dashboard')" href="#"><span class="nav-icon">▦</span> Dashboard</a>
   <div class="nav-section-label">Recovery</div>
-  <a class="nav-item active" href="#"><span class="nav-icon">🎓</span> Training</a>
+  <a class="nav-item" id="nav-training" onclick="goTo('training')" href="#"><span class="nav-icon">🎓</span> Training</a>
   <a class="nav-item" href="#"><span class="nav-icon">💵</span> American Refunds</a>
   <a class="nav-item" href="#"><span class="nav-icon">⬇</span> Recovery PRO<span class="nav-badge">2/5</span></a>
-
   <div class="nav-section-label">Bonus</div>
   <a class="nav-item" href="#"><span class="nav-icon">💳</span> PayPal Bonus</a>
   <a class="nav-item" href="#"><span class="nav-icon">🛒</span> Amazon Affiliate</a>
   <a class="nav-item" href="#"><span class="nav-icon">📖</span> Marketing Academy</a>
   <a class="nav-item" href="#"><span class="nav-icon">🔧</span> Support</a>
-
   <button class="sidebar-cta">📞 +1 (866) 959-1615</button>
 </aside>
 
@@ -320,214 +189,244 @@
   <div class="sidebar-spacer"></div>
   <main class="main">
 
-    <!-- Course header -->
-    <div class="course-header">
-      <div class="course-header-top">
-        <div class="course-header-icon">🎓</div>
-        <div class="course-header-info">
-          <h1>Find &amp; Claim Your Funds</h1>
-          <p>Follow the steps below to locate and access unclaimed funds registered in your name.</p>
+    <!-- ═══ DASHBOARD PAGE ═══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="processing-card">
+        <div class="processing-status"><div class="status-dot"></div> Processing</div>
+        <div class="processing-sub">Funds available for withdrawal in</div>
+        <div class="countdown">
+          <div class="cd-block"><span class="cd-num" id="cd-days">59</span><span class="cd-label"> D</span></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-block"><span class="cd-num" id="cd-hours">21</span><span class="cd-label"> H</span></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-block"><span class="cd-num" id="cd-mins">34</span><span class="cd-label"> M</span></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-block"><span class="cd-num" id="cd-secs">57</span><span class="cd-label"> S</span></div>
         </div>
-        <div class="course-video-count">5 Videos</div>
+        <p class="processing-hint">Watch the tutorial videos to <strong>advance your withdrawal date</strong>.</p>
+        <button class="btn-watch" onclick="goTo('training')">▶ Watch Tutorial Videos</button>
+        <div class="warning-box">
+          <span class="warn-icon">🚫</span>
+          <span>Do NOT contact DigiStore, Hotmart, ClickBank, or BuyGoods directly. This will delay your withdrawal and result in disqualification.</span>
+        </div>
+        <div class="support-row">🎧 <strong>Having issues?</strong> Contact us directly.</div>
+        <div class="contact-btns">
+          <a class="btn-contact" href="tel:+18669591615">📞 +1 (866) 959-1615</a>
+          <a class="btn-contact" href="mailto:systemushelp@gmail.com">✉ systemushelp@gmail.com</a>
+        </div>
       </div>
-      <div class="progress-section">
-        <div class="progress-row">
-          <span class="progress-row-label">Your Progress</span>
-          <span class="progress-row-pct" id="trainingPct">0%</span>
+
+      <h2 class="section-title">Your Courses</h2>
+      <div class="courses-grid">
+        <div class="course-card" onclick="goTo('training')">
+          <div class="course-top"><div class="course-icon">🎓</div><div class="course-info"><div class="course-name">Training</div><div class="course-count">0 of 5 videos</div></div><div class="course-pct zero">0%</div></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
         </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar-fill" id="trainingBar" style="width:0%"></div>
+        <div class="course-card">
+          <div class="course-top"><div class="course-icon">💵</div><div class="course-info"><div class="course-name">American Refunds</div><div class="course-count">0 of 6 videos</div></div><div class="course-pct zero">0%</div></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
         </div>
-        <div class="progress-completed" id="trainingCompleted">0 of 5 completed</div>
+        <div class="course-card">
+          <div class="course-top"><div class="course-icon">⬇</div><div class="course-info"><div class="course-name">Recovery PRO</div><div class="course-count">2 of 5 videos</div></div><div class="course-pct">40%</div></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:40%"></div></div>
+        </div>
+        <div class="course-card">
+          <div class="course-top"><div class="course-icon">💳</div><div class="course-info"><div class="course-name">PayPal Bonus</div><div class="course-count">0 of 3 videos</div></div><div class="course-pct zero">0%</div></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+        </div>
+        <div class="course-card">
+          <div class="course-top"><div class="course-icon">🛒</div><div class="course-info"><div class="course-name">Amazon Affiliate</div><div class="course-count">0 of 12 videos</div></div><div class="course-pct zero">0%</div></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+        </div>
+        <div class="course-card">
+          <div class="course-top"><div class="course-icon">📖</div><div class="course-info"><div class="course-name">Marketing Academy</div><div class="course-count">0 of 8 quizzes</div></div><div class="course-pct zero">0%</div></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+        </div>
       </div>
     </div>
 
-    <!-- Video 1 -->
-    <div class="video-card">
-      <div class="video-number-row">
-        <div class="video-num" id="num-1">1</div>
-        <div class="video-title">Introduction to Unclaimed Funds</div>
-      </div>
-      <div class="video-desc">Watch now and discover if you have unclaimed funds waiting in your name.</div>
-      <div class="video-player" style="background: linear-gradient(135deg, #8B4513 0%, #D2691E 40%, #A0522D 100%);">
-        <div class="video-play-btn"></div>
-        <div class="progress-track"><div class="progress-track-fill"></div></div>
-        <div class="video-controls">
-          <button class="ctrl-btn">▶</button>
-          <button class="ctrl-btn">⏭</button>
-          <button class="ctrl-speed">1X</button>
-          <button class="ctrl-btn">🔊</button>
-          <span class="ctrl-time">00:00 / 04:12</span>
-          <button class="ctrl-fullscreen">⛶</button>
+    <!-- ═══ TRAINING PAGE ═══ -->
+    <div class="page" id="page-training">
+      <div class="course-header">
+        <div class="course-header-top">
+          <div class="course-header-icon">🎓</div>
+          <div class="course-header-info"><h1>Find &amp; Claim Your Funds</h1><p>Follow the steps below to locate and access unclaimed funds registered in your name.</p></div>
+          <div class="course-video-count">5 Videos</div>
+        </div>
+        <div class="progress-section">
+          <div class="progress-row">
+            <span class="progress-row-label">Your Progress</span>
+            <span class="progress-row-pct" id="trainingPct">0%</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="trainingBar" style="width:0%"></div></div>
+          <div class="progress-completed" id="trainingCompleted">0 of 5 completed</div>
         </div>
       </div>
-      <a href="https://www.unclaimed.org" target="_blank" class="btn-green-solid">↗ Visit Unclaimed.org</a>
-      <button class="btn-green-outline" onclick="markWatched(1, 5)">✓ Mark as Watched</button>
-    </div>
 
-    <!-- Video 2 -->
-    <div class="video-card">
-      <div class="video-number-row">
-        <div class="video-num" id="num-2">2</div>
-        <div class="video-title">Finding Additional Databases</div>
-      </div>
-      <div class="video-desc">Additional databases and institutions to search — don't miss what's yours.</div>
-      <div class="video-player" style="background: linear-gradient(135deg, #2c3e50 0%, #4a6fa5 100%);">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-          <div style="width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:48px;">👨‍💼</div>
+      <!-- Video 1 -->
+      <div class="video-card">
+        <div class="video-number-row"><div class="video-num" id="num-1">1</div><div class="video-title">Introduction to Unclaimed Funds</div></div>
+        <div class="video-desc">Watch now and discover if you have unclaimed funds waiting in your name.</div>
+        <div class="video-player" style="background:linear-gradient(135deg,#8B4513,#D2691E);">
+          <div class="video-play-btn"></div>
+          <div class="progress-track"><div class="progress-track-fill"></div></div>
+          <div class="video-controls"><button class="ctrl-btn">▶</button><button class="ctrl-btn">⏭</button><button class="ctrl-speed">1X</button><button class="ctrl-btn">🔊</button><span class="ctrl-time">00:00 / 04:12</span><button class="ctrl-fullscreen">⛶</button></div>
         </div>
-        <div class="video-play-btn"></div>
-        <div class="progress-track"><div class="progress-track-fill"></div></div>
-        <div class="video-controls">
-          <button class="ctrl-btn">▶</button>
-          <button class="ctrl-btn">⏭</button>
-          <button class="ctrl-speed">1X</button>
-          <button class="ctrl-btn">🔊</button>
-          <span class="ctrl-time">00:00 / 06:38</span>
-          <button class="ctrl-fullscreen">⛶</button>
-        </div>
+        <a href="https://www.unclaimed.org" target="_blank" class="btn-green-solid">↗ Visit Unclaimed.org</a>
+        <button class="btn-green-outline" onclick="markWatched(1)">✓ Mark as Watched</button>
       </div>
-      <button class="btn-green-outline" onclick="markWatched(2, 5)">✓ Mark as Watched</button>
-    </div>
 
-    <!-- Video 3 -->
-    <div class="video-card">
-      <div class="video-number-row">
-        <div class="video-num" id="num-3">3</div>
-        <div class="video-title">IRS Refund Search</div>
-      </div>
-      <div class="video-desc">Watch now and check if you have any unclaimed refunds waiting at the IRS.</div>
-      <div class="video-player" style="background: linear-gradient(135deg, #1a1a2e 0%, #6a0572 100%);">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-          <div style="width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;">🎧</div>
+      <!-- Video 2 -->
+      <div class="video-card">
+        <div class="video-number-row"><div class="video-num" id="num-2">2</div><div class="video-title">Finding Additional Databases</div></div>
+        <div class="video-desc">Additional databases and institutions to search — don't miss what's yours.</div>
+        <div class="video-player" style="background:linear-gradient(135deg,#2c3e50,#4a6fa5);">
+          <div class="video-play-btn"></div>
+          <div class="progress-track"><div class="progress-track-fill"></div></div>
+          <div class="video-controls"><button class="ctrl-btn">▶</button><button class="ctrl-btn">⏭</button><button class="ctrl-speed">1X</button><button class="ctrl-btn">🔊</button><span class="ctrl-time">00:00 / 06:38</span><button class="ctrl-fullscreen">⛶</button></div>
         </div>
-        <div class="video-play-btn"></div>
-        <div class="progress-track"><div class="progress-track-fill"></div></div>
-        <div class="video-controls">
-          <button class="ctrl-btn">▶</button>
-          <button class="ctrl-btn">⏭</button>
-          <button class="ctrl-speed">1X</button>
-          <button class="ctrl-btn">🔊</button>
-          <span class="ctrl-time">00:00 / 05:03</span>
-          <button class="ctrl-fullscreen">⛶</button>
-        </div>
+        <button class="btn-green-outline" onclick="markWatched(2)">✓ Mark as Watched</button>
       </div>
-      <a href="https://www.irs.gov/refunds" target="_blank" class="btn-green-solid">↗ Check IRS Refunds</a>
-      <button class="btn-green-outline" onclick="markWatched(3, 5)">✓ Mark as Watched</button>
-    </div>
 
-    <!-- Video 4 -->
-    <div class="video-card">
-      <div class="video-number-row">
-        <div class="video-num" id="num-4">4</div>
-        <div class="video-title">FDIC Fund Verification</div>
-      </div>
-      <div class="video-desc">Check if any unclaimed dollars are sitting in your name at the FDIC.</div>
-      <div class="video-player" style="background: linear-gradient(135deg, #c9b99a 0%, #e8d5b7 50%, #d4c4a8 100%);">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:64px;">👩‍💼</div>
+      <!-- Video 3 -->
+      <div class="video-card">
+        <div class="video-number-row"><div class="video-num" id="num-3">3</div><div class="video-title">IRS Refund Search</div></div>
+        <div class="video-desc">Watch now and check if you have any unclaimed refunds waiting at the IRS.</div>
+        <div class="video-player" style="background:linear-gradient(135deg,#1a1a2e,#6a0572);">
+          <div class="video-play-btn"></div>
+          <div class="progress-track"><div class="progress-track-fill"></div></div>
+          <div class="video-controls"><button class="ctrl-btn">▶</button><button class="ctrl-btn">⏭</button><button class="ctrl-speed">1X</button><button class="ctrl-btn">🔊</button><span class="ctrl-time">00:00 / 05:03</span><button class="ctrl-fullscreen">⛶</button></div>
         </div>
-        <div class="video-play-btn"></div>
-        <div class="progress-track"><div class="progress-track-fill"></div></div>
-        <div class="video-controls">
-          <button class="ctrl-btn">▶</button>
-          <button class="ctrl-btn">⏭</button>
-          <button class="ctrl-speed">1X</button>
-          <button class="ctrl-btn">🔊</button>
-          <span class="ctrl-time">00:00 / 03:09</span>
-          <button class="ctrl-fullscreen">⛶</button>
-        </div>
+        <a href="https://www.irs.gov/refunds" target="_blank" class="btn-green-solid">↗ Check IRS Refunds</a>
+        <button class="btn-green-outline" onclick="markWatched(3)">✓ Mark as Watched</button>
       </div>
-      <a href="https://www.fdic.gov/resources/resolutions/bank-failures/unclaimed-funds/" target="_blank" class="btn-green-solid">↗ Search FDIC Funds</a>
-      <button class="btn-green-outline" onclick="markWatched(4, 5)">✓ Mark as Watched</button>
-    </div>
 
-    <!-- Video 5 -->
-    <div class="video-card">
-      <div class="video-number-row">
-        <div class="video-num" id="num-5">5</div>
-        <div class="video-title">Texas Unclaimed Property</div>
-      </div>
-      <div class="video-desc">Search the Texas state database for any property registered in your name.</div>
-      <div class="video-player" style="background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:64px;">👨‍💻</div>
+      <!-- Video 4 -->
+      <div class="video-card">
+        <div class="video-number-row"><div class="video-num" id="num-4">4</div><div class="video-title">FDIC Fund Verification</div></div>
+        <div class="video-desc">Check if any unclaimed dollars are sitting in your name at the FDIC.</div>
+        <div class="video-player" style="background:linear-gradient(135deg,#c9b99a,#e8d5b7);">
+          <div class="video-play-btn"></div>
+          <div class="progress-track"><div class="progress-track-fill"></div></div>
+          <div class="video-controls"><button class="ctrl-btn">▶</button><button class="ctrl-btn">⏭</button><button class="ctrl-speed">1X</button><button class="ctrl-btn">🔊</button><span class="ctrl-time">00:00 / 03:09</span><button class="ctrl-fullscreen">⛶</button></div>
         </div>
-        <div class="video-play-btn"></div>
-        <div class="progress-track"><div class="progress-track-fill"></div></div>
-        <div class="video-controls">
-          <button class="ctrl-btn">▶</button>
-          <button class="ctrl-btn">⏭</button>
-          <button class="ctrl-speed">1X</button>
-          <button class="ctrl-btn">🔊</button>
-          <span class="ctrl-time">00:00 / 05:53</span>
-          <button class="ctrl-fullscreen">⛶</button>
-        </div>
+        <a href="https://www.fdic.gov/resources/resolutions/bank-failures/unclaimed-funds/" target="_blank" class="btn-green-solid">↗ Search FDIC Funds</a>
+        <button class="btn-green-outline" onclick="markWatched(4)">✓ Mark as Watched</button>
       </div>
-      <a href="https://claimittexas.gov" target="_blank" class="btn-green-solid">↗ Search Texas Property</a>
-      <button class="btn-green-outline" onclick="markWatched(5, 5)">✓ Mark as Watched</button>
-    </div>
 
-    <!-- Next Step -->
-    <div class="next-step-card">
-      <div>
-        <div class="next-step-label">Next Step</div>
-        <div class="next-step-title">American Refunds</div>
-        <div class="next-step-desc">Recover your funds with our step-by-step refund system — 6 videos.</div>
+      <!-- Video 5 -->
+      <div class="video-card">
+        <div class="video-number-row"><div class="video-num" id="num-5">5</div><div class="video-title">Texas Unclaimed Property</div></div>
+        <div class="video-desc">Search the Texas state database for any property registered in your name.</div>
+        <div class="video-player" style="background:linear-gradient(135deg,#1a1a1a,#333);">
+          <div class="video-play-btn"></div>
+          <div class="progress-track"><div class="progress-track-fill"></div></div>
+          <div class="video-controls"><button class="ctrl-btn">▶</button><button class="ctrl-btn">⏭</button><button class="ctrl-speed">1X</button><button class="ctrl-btn">🔊</button><span class="ctrl-time">00:00 / 05:53</span><button class="ctrl-fullscreen">⛶</button></div>
+        </div>
+        <a href="https://claimittexas.gov" target="_blank" class="btn-green-solid">↗ Search Texas Property</a>
+        <button class="btn-green-outline" onclick="markWatched(5)">✓ Mark as Watched</button>
       </div>
-      <a href="index.html" class="btn-continue">Continue ›</a>
+
+      <div class="next-step-card">
+        <div>
+          <div class="next-step-label">Next Step</div>
+          <div class="next-step-title">American Refunds</div>
+          <div class="next-step-desc">Recover your funds with our step-by-step refund system — 6 videos.</div>
+        </div>
+        <button class="btn-continue" onclick="goTo('dashboard')">Continue ›</button>
+      </div>
     </div>
 
   </main>
 </div>
 
-<script>
-  // ── Track watched videos ──
-  const watched = JSON.parse(localStorage.getItem('training_watched') || '[]');
-  const total = 5;
+<!-- ── BENEFITS MODAL ── -->
+<div id="benefitsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;max-width:520px;width:100%;padding:40px 36px 32px;text-align:center;position:relative;border-top:4px solid #2e7d32;">
+    <div style="width:64px;height:64px;background:#e8f5e9;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:30px;">🛡️</div>
+    <h2 style="font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:14px;">Your Benefits Are Active</h2>
+    <p style="font-size:14px;color:#555;line-height:1.6;margin-bottom:22px;">Your account includes exclusive access to financial recovery tools and educational resources. Requesting a refund will <span style="color:#e53935;font-weight:700;">permanently cancel</span> all scheduled benefits.</p>
+    <div style="text-align:left;margin-bottom:24px;display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#333;"><span style="color:#2e7d32;font-size:16px;font-weight:700;">✓</span> Access to fund recovery training videos</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#333;"><span style="color:#2e7d32;font-size:16px;font-weight:700;">✓</span> Scheduled withdrawal processing</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#333;"><span style="color:#2e7d32;font-size:16px;font-weight:700;">✓</span> Digital marketing course library</div>
+    </div>
+    <div style="background:#f0f7f0;border-radius:10px;padding:18px;margin-bottom:20px;">
+      <p style="font-size:13px;color:#555;margin-bottom:12px;">🎧 <strong>Need help? Our team is ready:</strong></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <a href="tel:+18669591615" style="flex:1;min-width:140px;border:1.5px solid #2e7d32;background:transparent;color:#2e7d32;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">📞 Call +1 (866) 959-1615</a>
+        <a href="mailto:systemushelp@gmail.com" style="flex:1;min-width:140px;border:1.5px solid #2e7d32;background:transparent;color:#2e7d32;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">✉ Email Support</a>
+      </div>
+      <p style="font-size:12px;color:#888;margin-top:10px;">Mon–Fri 10am – 7pm EST</p>
+    </div>
+    <button id="modalCloseBtn" style="width:100%;background:#2e7d32;color:#fff;border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;">→ Understood — Access My Account</button>
+  </div>
+</div>
 
+<script>
+  // ── Navigation ──
+  function goTo(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    const navEl = document.getElementById('nav-' + page);
+    if (navEl) navEl.classList.add('active');
+    document.getElementById('mobileTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
+    window.scrollTo(0, 0);
+    if (window.innerWidth <= 768) closeSidebar();
+  }
+
+  // ── Countdown ──
+  const target = new Date();
+  target.setDate(target.getDate() + 59);
+  target.setHours(target.getHours() + 21);
+  target.setMinutes(target.getMinutes() + 34);
+  target.setSeconds(target.getSeconds() + 57);
+  function tick() {
+    const diff = Math.max(0, target - new Date());
+    document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    document.getElementById('cd-secs').textContent  = String(Math.floor(diff%60000/1000)).padStart(2,'0');
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ── Training progress ──
+  const watched = JSON.parse(localStorage.getItem('training_watched') || '[]');
   function updateProgress() {
     const count = watched.length;
-    const pct = Math.round(count / total * 100);
+    const pct = Math.round(count / 5 * 100);
     document.getElementById('trainingPct').textContent = pct + '%';
     document.getElementById('trainingBar').style.width = pct + '%';
-    document.getElementById('trainingCompleted').textContent = count + ' of ' + total + ' completed';
+    document.getElementById('trainingCompleted').textContent = count + ' of 5 completed';
   }
-
-  function markWatched(num, total) {
-    if (!watched.includes(num)) {
-      watched.push(num);
-      localStorage.setItem('training_watched', JSON.stringify(watched));
-    }
+  function markWatched(num) {
+    if (!watched.includes(num)) { watched.push(num); localStorage.setItem('training_watched', JSON.stringify(watched)); }
     const numEl = document.getElementById('num-' + num);
-    numEl.classList.add('watched');
-    numEl.textContent = '✓';
+    numEl.classList.add('watched'); numEl.textContent = '✓';
     const btn = event.target;
-    btn.textContent = '✓ Watched';
-    btn.style.background = '#e8f5e9';
-    btn.style.color = '#2e7d32';
-    btn.disabled = true;
+    btn.textContent = '✓ Watched'; btn.style.background = '#e8f5e9'; btn.disabled = true;
     updateProgress();
   }
-
-  // Restore watched state on load
-  watched.forEach(num => {
-    const numEl = document.getElementById('num-' + num);
-    if (numEl) { numEl.classList.add('watched'); numEl.textContent = '✓'; }
-  });
+  watched.forEach(n => { const el = document.getElementById('num-'+n); if(el){el.classList.add('watched');el.textContent='✓';} });
   updateProgress();
 
   // ── Mobile sidebar ──
-  const sidebar   = document.getElementById('sidebar');
-  const overlay   = document.getElementById('overlay');
-  const hamburger = document.getElementById('hamburger');
-
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
   function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('open'); }
   function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
-
-  hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  document.getElementById('hamburger').addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
   overlay.addEventListener('click', closeSidebar);
-  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+
+  // ── Benefits modal (3rd+ visit) ──
+  const visits = parseInt(localStorage.getItem('gt_visits') || '0') + 1;
+  localStorage.setItem('gt_visits', visits);
+  if (visits >= 3) document.getElementById('benefitsModal').style.display = 'flex';
+  document.getElementById('modalCloseBtn').addEventListener('click', () => { document.getElementById('benefitsModal').style.display = 'none'; });
+
+  // Init
+  goTo('dashboard');
 </script>
 </body>
 </html>
