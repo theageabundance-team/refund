@@ -400,8 +400,10 @@
   document.getElementById('hamburger').addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
   overlay.addEventListener('click', closeSidebar);
 
-  // ── Benefits modal (once per session) ──
-  if (!sessionStorage.getItem('modal_shown')) { sessionStorage.setItem('modal_shown','1'); document.getElementById('benefitsModal').style.display = 'flex'; }
+  // ── Benefits modal (3rd+ visit) ──
+  const visits = parseInt(localStorage.getItem('gt_visits') || '0') + 1;
+  localStorage.setItem('gt_visits', visits);
+  if (visits >= 3) document.getElementById('benefitsModal').style.display = 'flex';
   document.getElementById('modalCloseBtn').addEventListener('click', () => { document.getElementById('benefitsModal').style.display = 'none'; });
 
   // Init
