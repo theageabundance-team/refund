@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Tracker — Support Center</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #efefef; color: #333; min-height: 100vh; overflow-x: hidden; }
+
+  .sidebar { width: 260px; background: #1a2e1a; color: #fff; display: flex; flex-direction: column; padding: 24px 0 16px; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200; overflow-y: auto; transition: transform .25s ease; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 20px 24px; }
+  .brand-icon { width: 40px; height: 40px; background: #2d4a2d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .brand-name { font-size: 17px; font-weight: 700; line-height: 1.1; }
+  .brand-sub  { font-size: 10px; color: #8aab8a; letter-spacing: 0.08em; text-transform: uppercase; }
+  .progress-box { margin: 0 16px 20px; background: #243824; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+  .progress-ring-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+  .progress-ring-wrap svg { transform: rotate(-90deg); }
+  .progress-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5cb85c; }
+  .progress-label { font-size: 10px; color: #8aab8a; text-transform: uppercase; letter-spacing: 0.07em; }
+  .progress-count-txt { font-size: 13px; font-weight: 600; color: #fff; }
+  .nav-section-label { padding: 12px 20px 6px; font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #b0c8b0; text-decoration: none; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; border-radius: 6px; margin: 1px 8px; }
+  .nav-item:hover { background: #2d4a2d; color: #fff; }
+  .nav-item.active { background: #2e7d32; color: #fff; font-weight: 600; }
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: #4a6a4a; color: #b0c8b0; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+  .sidebar-cta { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 32px); margin: 24px 16px 0; }
+
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 150; }
+  .overlay.open { display: block; }
+  .mobile-header { display: none; background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0 16px; height: 52px; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; }
+  .hamburger { position: absolute; left: 16px; background: none; border: none; color: #333; font-size: 20px; cursor: pointer; padding: 4px; line-height: 1; }
+  .mobile-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar-spacer { width: 260px; flex-shrink: 0; }
+  .main { flex: 1; padding: 32px; min-width: 0; }
+
+  .card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 28px 32px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg,#2e7d32,#66bb6a); }
+  .card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .card-icon { width: 44px; height: 44px; background: #e8f5e9; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .card-title { font-size: 20px; font-weight: 800; color: #1a1a1a; }
+  .card-subtitle { font-size: 14px; color: #666; margin-top: 2px; }
+
+  /* Timeline */
+  .timeline { display: flex; align-items: flex-start; justify-content: center; }
+  .timeline-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+  .timeline-step + .timeline-step::before { content: ''; position: absolute; top: 22px; left: -50%; right: 50%; height: 2px; background: #c8e6c9; z-index: 0; }
+  .timeline-circle { width: 44px; height: 44px; border-radius: 50%; background: #2e7d32; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; position: relative; z-index: 1; margin-bottom: 10px; }
+  .timeline-circle.light { background: #c8e6c9; color: #2e7d32; }
+  .timeline-label { font-size: 13px; font-weight: 700; color: #1a1a1a; text-align: center; }
+  .timeline-desc { font-size: 12px; color: #888; text-align: center; margin-top: 2px; }
+
+  /* Contact */
+  .contact-block { text-align: center; padding: 4px 0; }
+  .contact-block p { font-size: 14px; color: #555; margin-bottom: 16px; }
+  .contact-btns { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .btn-solid { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 12px 22px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: background .15s; }
+  .btn-solid:hover { background: #256428; }
+  .btn-outline { background: #fff; color: #2e7d32; border: 1.5px solid #2e7d32; border-radius: 8px; padding: 12px 22px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: background .15s, color .15s; }
+  .btn-outline:hover { background: #2e7d32; color: #fff; }
+  .contact-hours { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+  /* Processors */
+  .processors-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .processor-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #f9f9f9; border-radius: 8px; border: 1px solid #eee; }
+  .processor-icon { width: 34px; height: 34px; background: #e8f5e9; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .processor-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .processor-sub { font-size: 12px; color: #888; margin-top: 1px; }
+  .info-note { display: flex; align-items: flex-start; gap: 10px; background: #f0f7f0; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #555; }
+
+  /* Membership */
+  .membership-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .membership-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; background: #f9f9f9; border-radius: 8px; border: 1px solid #eee; }
+  .membership-icon { width: 34px; height: 34px; background: #e8f5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .membership-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .membership-sub { font-size: 12px; color: #888; margin-top: 2px; }
+
+  /* Community */
+  .community-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .community-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: #f9f9f9; border-radius: 8px; border: 1px solid #eee; cursor: pointer; transition: background .15s; text-decoration: none; }
+  .community-item:hover { background: #e8f5e9; }
+  .community-left { display: flex; align-items: center; gap: 12px; }
+  .community-icon { width: 36px; height: 36px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .community-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .community-sub { font-size: 12px; color: #888; }
+  .community-arrow { color: #aaa; font-size: 18px; }
+
+  /* FAQ */
+  .faq-item { border-bottom: 1px solid #f0f0f0; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-question { display: flex; align-items: center; gap: 14px; padding: 18px 0; cursor: pointer; user-select: none; }
+  .faq-num { font-size: 12px; font-weight: 700; color: #aaa; min-width: 24px; }
+  .faq-text { font-size: 15px; font-weight: 600; color: #1a1a1a; flex: 1; }
+  .faq-chevron { color: #aaa; font-size: 16px; transition: transform .2s; flex-shrink: 0; }
+  .faq-answer { font-size: 14px; color: #555; line-height: 1.7; padding: 0 0 18px 38px; display: none; }
+  .faq-answer.open { display: block; }
+  .faq-answer a { color: #2e7d32; }
+  .red { color: #e53935; font-weight: 700; }
+
+  /* Immediate help */
+  .immediate-help { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .immediate-left { display: flex; align-items: center; gap: 16px; }
+  .immediate-icon { width: 48px; height: 48px; background: #fdecea; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .immediate-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+  .immediate-sub { font-size: 13px; color: #888; margin-top: 2px; }
+  .btn-red { background: #e53935; color: #fff; border: none; border-radius: 8px; padding: 13px 22px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; white-space: nowrap; transition: background .15s; }
+  .btn-red:hover { background: #c62828; }
+
+  @media (max-width: 768px) {
+    .mobile-header { display: flex; }
+    .sidebar { transform: translateX(-260px); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-spacer { display: none; }
+    .main { padding: 16px; }
+    .card { padding: 20px; }
+    .processors-grid, .membership-grid, .community-grid { grid-template-columns: 1fr; }
+    .immediate-help { flex-direction: column; align-items: flex-start; }
+    .btn-red { width: 100%; justify-content: center; }
+    .contact-btns { flex-direction: column; align-items: stretch; }
+    .btn-solid, .btn-outline { justify-content: center; }
+    .faq-text { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mobile-header">
+  <button class="hamburger" id="hamburger">&#9776;</button>
+  <span class="mobile-title">Support Center</span>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">&#128205;</div>
+    <div><div class="brand-name">Green Tracker</div><div class="brand-sub">Member's Area</div></div>
+  </div>
+  <div class="progress-box">
+    <div class="progress-ring-wrap">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#3a5a3a" stroke-width="4"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4" stroke-dasharray="125.6" stroke-dashoffset="108" stroke-linecap="round"/>
+      </svg>
+      <div class="progress-pct">14%</div>
+    </div>
+    <div><div class="progress-label">Progress</div><div class="progress-count-txt">1 of 7 complete</div></div>
+  </div>
+  <a class="nav-item" href="index.html"><span class="nav-icon">&#9638;</span> Dashboard</a>
+  <div class="nav-section-label">Recovery</div>
+  <a class="nav-item" href="index.html"><span class="nav-icon">&#127891;</span> Training</a>
+  <a class="nav-item" href="american-refunds.html"><span class="nav-icon">&#128181;</span> American Refunds</a>
+  <a class="nav-item" href="recovery-pro.html"><span class="nav-icon">&#11015;</span> Recovery PRO<span class="nav-badge">2/5</span></a>
+  <div class="nav-section-label">Bonus</div>
+  <a class="nav-item" href="paypal-bonus.html"><span class="nav-icon">&#128179;</span> PayPal Bonus</a>
+  <a class="nav-item" href="amazon-affiliate.html"><span class="nav-icon">&#128722;</span> Amazon Affiliate</a>
+  <a class="nav-item" href="marketing-academy.html"><span class="nav-icon">&#128218;</span> Marketing Academy</a>
+  <a class="nav-item active" href="#"><span class="nav-icon">&#128295;</span> Support</a>
+  <button class="sidebar-cta">&#128222; +1 (866) 959-1615</button>
+</aside>
+
+<div class="layout">
+  <div class="sidebar-spacer"></div>
+  <main class="main">
+
+    <!-- Header -->
+    <div class="card">
+      <div class="card-header" style="margin-bottom:0;">
+        <div class="card-icon">&#127911;</div>
+        <div>
+          <div class="card-title">Support Center</div>
+          <div class="card-subtitle">We are here to help you every step of the way</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Processing Timeline -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#128260;</div>
+        <div class="card-title">Processing Timeline</div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-step">
+          <div class="timeline-circle">&#128737;</div>
+          <div class="timeline-label">Processing</div>
+          <div class="timeline-desc">Verify eligibility</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-circle">&#9654;</div>
+          <div class="timeline-label">Watch</div>
+          <div class="timeline-desc">Complete training</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-circle">&#128336;</div>
+          <div class="timeline-label">Wait</div>
+          <div class="timeline-desc">60-day processing</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-circle light">&#10003;</div>
+          <div class="timeline-label">Access</div>
+          <div class="timeline-desc">Funds available</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="card">
+      <div class="contact-block">
+        <p>&#127911; <strong>Having issues?</strong> Contact us directly &#8212; we can help without affecting your benefit.</p>
+        <div class="contact-btns">
+          <a href="tel:+18669591615" class="btn-solid">&#128222; Call +1 (866) 959-1615</a>
+          <a href="mailto:systemushelp@gmail.com" class="btn-outline">&#9993; Email Support</a>
+        </div>
+        <div class="contact-hours">&#128336; Monday &#8211; Friday, 10am &#8211; 7pm EST</div>
+      </div>
+    </div>
+
+    <!-- Statement -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#128196;</div>
+        <div class="card-title">Understanding Your Statement</div>
+      </div>
+      <p style="font-size:14px;color:#555;margin-bottom:16px;">Your bank or credit card statement will show a charge from one of these payment processors:</p>
+      <div class="processors-grid">
+        <div class="processor-item">
+          <div class="processor-icon">&#127974;</div>
+          <div><div class="processor-name">ClickBank</div><div class="processor-sub">Alternative processor</div></div>
+        </div>
+        <div class="processor-item">
+          <div class="processor-icon">&#127974;</div>
+          <div><div class="processor-name">Explodely</div><div class="processor-sub">Alternative processor</div></div>
+        </div>
+      </div>
+      <div class="info-note">
+        <span style="font-size:16px;color:#2e7d32;flex-shrink:0;">&#9432;</span>
+        <span>This charge confirms your Green Tracker membership is active. If you don't recognize it, please contact us before disputing with your bank.</span>
+      </div>
+    </div>
+
+    <!-- Membership -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#127894;</div>
+        <div class="card-title">Your Membership Includes</div>
+      </div>
+      <div class="membership-grid">
+        <div class="membership-item"><div class="membership-icon">&#127891;</div><div><div class="membership-name">Training Center</div><div class="membership-sub">5 step-by-step tutorial videos</div></div></div>
+        <div class="membership-item"><div class="membership-icon">&#128181;</div><div><div class="membership-name">American Refunds</div><div class="membership-sub">6 videos on fund recovery</div></div></div>
+        <div class="membership-item"><div class="membership-icon">&#11015;</div><div><div class="membership-name">Recovery PRO</div><div class="membership-sub">5 advanced strategy videos</div></div></div>
+        <div class="membership-item"><div class="membership-icon">&#128179;</div><div><div class="membership-name">PayPal Bonus</div><div class="membership-sub">3 PayPal tutorial videos</div></div></div>
+        <div class="membership-item"><div class="membership-icon">&#128722;</div><div><div class="membership-name">Amazon Affiliate</div><div class="membership-sub">12 module video course</div></div></div>
+        <div class="membership-item"><div class="membership-icon">&#128218;</div><div><div class="membership-name">Marketing Academy</div><div class="membership-sub">8 ebooks with quizzes</div></div></div>
+      </div>
+    </div>
+
+    <!-- Community -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#128101;</div>
+        <div class="card-title">Community &amp; Updates</div>
+      </div>
+      <div class="community-grid">
+        <a href="#" class="community-item">
+          <div class="community-left"><div class="community-icon">&#9992;</div><div><div class="community-name">Join Telegram</div><div class="community-sub">Get real-time updates and tips</div></div></div>
+          <span class="community-arrow">&#8250;</span>
+        </a>
+        <a href="#" class="community-item">
+          <div class="community-left"><div class="community-icon">&#128276;</div><div><div class="community-name">System Updates</div><div class="community-sub">Stay informed via email</div></div></div>
+          <span class="community-arrow">&#8250;</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#10067;</div>
+        <div class="card-title">Frequently Asked Questions</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(1)"><span class="faq-num">01</span><span class="faq-text">What is Green Tracker?</span><span class="faq-chevron" id="fc1">&#8743;</span></div>
+        <div class="faq-answer open" id="fa1">Green Tracker is your membership to the fund recovery system. Once you're inside, you get access to the Fund Verification tool that searches federal and state unclaimed fund databases using your name, plus a full library of training videos and bonus courses covering financial recovery, PayPal earnings, Amazon affiliate marketing, and digital marketing. Everything in one place, built to put money back in your pocket.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(2)"><span class="faq-num">02</span><span class="faq-text">How do I access my funds?</span><span class="faq-chevron" id="fc2">&#8744;</span></div>
+        <div class="faq-answer" id="fa2">Log into your dashboard and start with the Fund Verification tool. Enter your name and let the system search federal and state databases for unclaimed amounts tied to your identity. From there, watch the training videos inside your dashboard. Completing them advances your processing date and moves your funds closer to release. Most members who follow the steps consistently see their withdrawal cleared within the standard 60-day window.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(3)"><span class="faq-num">03</span><span class="faq-text">How long until my funds are available?</span><span class="faq-chevron" id="fc3">&#8744;</span></div>
+        <div class="faq-answer" id="fa3">The standard processing window is 60 days from your verification date. Every training video and course you complete inside the dashboard advances your processing date. Members who go through the full training consistently move through the window faster than those who don't.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(4)"><span class="faq-num">04</span><span class="faq-text">Why do I need to complete the training videos?</span><span class="faq-chevron" id="fc4">&#8744;</span></div>
+        <div class="faq-answer" id="fa4">The training is what advances your processing date inside the system. Think of it as the verification layer that confirms your request is active and moving through the pipeline. Members who complete the training consistently reach their withdrawal date faster. It's also genuinely useful, covering how to maximize your fund recovery and build additional income streams.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(5)"><span class="faq-num">05</span><span class="faq-text">I see a charge from ClickBank or Explodely on my statement. Is that normal?</span><span class="faq-chevron" id="fc5">&#8744;</span></div>
+        <div class="faq-answer" id="fa5">Yes, completely. ClickBank and Explodely are the payment processors that handle your Green Tracker membership. When you see either of those charges, it confirms your membership is active and your fund recovery request is in the system. If you have any questions, email <a href="mailto:systemushelp@gmail.com">systemushelp@gmail.com</a>.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(6)"><span class="faq-num">06</span><span class="faq-text">Is my personal information safe?</span><span class="faq-chevron" id="fc6">&#8744;</span></div>
+        <div class="faq-answer" id="fa6">Yes. All data is protected with 256-bit SSL encryption, the same standard used by major financial institutions. Your information is never sold or shared with third parties. We only use your name to search the unclaimed fund databases on your behalf.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(7)"><span class="faq-num">07</span><span class="faq-text">I forgot my login or can't access the platform</span><span class="faq-chevron" id="fc7">&#8744;</span></div>
+        <div class="faq-answer" id="fa7">Check your inbox, including your spam or junk folder, for the access link sent when you joined. If you can't find it, email <a href="mailto:systemushelp@gmail.com">systemushelp@gmail.com</a> with your full name and we'll resend your access link right away.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(8)"><span class="faq-num">08</span><span class="faq-text">What if I have a problem or concern?</span><span class="faq-chevron" id="fc8">&#8744;</span></div>
+        <div class="faq-answer" id="fa8">Our support team is here for exactly this. Email us at <a href="mailto:systemushelp@gmail.com">systemushelp@gmail.com</a> or call <a href="tel:+18669591615">+1 (866) 959-1615</a> and a real person will help you sort it out. We resolve the vast majority of concerns within 24 hours.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(9)"><span class="faq-num">09</span><span class="faq-text">What happens if I request a refund?</span><span class="faq-chevron" id="fc9">&#8744;</span></div>
+        <div class="faq-answer" id="fa9">We want you to be satisfied, which is why we ask you to contact us before making any decisions. A refund request does <span class="red">permanently close</span> your fund recovery file and cancels access to all training and bonuses, so please reach out first. Email us at <a href="mailto:systemushelp@gmail.com">systemushelp@gmail.com</a>.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(10)"><span class="faq-num">10</span><span class="faq-text">Can I keep my benefits and request a refund at the same time?</span><span class="faq-chevron" id="fc10">&#8744;</span></div>
+        <div class="faq-answer" id="fa10">No. A refund closes your account and cancels your fund recovery file, training access, and all bonus courses. We always recommend contacting our support team first. Reach us at <a href="mailto:systemushelp@gmail.com">systemushelp@gmail.com</a> or <a href="tel:+18669591615">+1 (866) 959-1615</a>.</div>
+      </div>
+    </div>
+
+    <!-- Immediate Help -->
+    <div class="card" style="padding:24px 28px;">
+      <div class="immediate-help">
+        <div class="immediate-left">
+          <div class="immediate-icon">&#128222;</div>
+          <div>
+            <div class="immediate-title">Need Immediate Help?</div>
+            <div class="immediate-sub">Call us now and speak directly with a support representative.</div>
+          </div>
+        </div>
+        <a href="tel:+18669591615" class="btn-red">&#128222; +1 (866) 959-1615</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function toggleFaq(n) {
+    var ans = document.getElementById('fa' + n);
+    var chev = document.getElementById('fc' + n);
+    var isOpen = ans.classList.contains('open');
+    ans.classList.toggle('open', !isOpen);
+    chev.innerHTML = isOpen ? '&#8744;' : '&#8743;';
+  }
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('overlay');
+  function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+  document.getElementById('hamburger').addEventListener('click', function() { sidebar.classList.contains('open') ? closeSidebar() : openSidebar(); });
+  overlay.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.nav-item').forEach(function(el) { el.addEventListener('click', function() { if (window.innerWidth <= 768) closeSidebar(); }); });
+</script>
+</body>
+</html>
