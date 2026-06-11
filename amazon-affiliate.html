@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Tracker — Amazon Affiliate</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #efefef; color: #333; min-height: 100vh; overflow-x: hidden; }
+
+  .sidebar { width: 260px; background: #1a2e1a; color: #fff; display: flex; flex-direction: column; padding: 24px 0 16px; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200; overflow-y: auto; transition: transform .25s ease; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 20px 24px; }
+  .brand-icon { width: 40px; height: 40px; background: #2d4a2d; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .brand-name { font-size: 17px; font-weight: 700; line-height: 1.1; }
+  .brand-sub  { font-size: 10px; color: #8aab8a; letter-spacing: 0.08em; text-transform: uppercase; }
+  .progress-box { margin: 0 16px 20px; background: #243824; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+  .progress-ring-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+  .progress-ring-wrap svg { transform: rotate(-90deg); }
+  .progress-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5cb85c; }
+  .progress-label { font-size: 10px; color: #8aab8a; text-transform: uppercase; letter-spacing: 0.07em; }
+  .progress-count-txt { font-size: 13px; font-weight: 600; color: #fff; }
+  .nav-section-label { padding: 12px 20px 6px; font-size: 10px; color: #5a7a5a; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: #b0c8b0; text-decoration: none; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; border-radius: 6px; margin: 1px 8px; }
+  .nav-item:hover { background: #2d4a2d; color: #fff; }
+  .nav-item.active { background: #2e7d32; color: #fff; font-weight: 600; }
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: #4a6a4a; color: #b0c8b0; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+  .sidebar-cta { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 32px); margin: 24px 16px 0; }
+
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 150; }
+  .overlay.open { display: block; }
+  .mobile-header { display: none; background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0 16px; height: 52px; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; }
+  .hamburger { position: absolute; left: 16px; background: none; border: none; color: #333; font-size: 20px; cursor: pointer; padding: 4px; line-height: 1; }
+  .mobile-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar-spacer { width: 260px; flex-shrink: 0; }
+  .main { flex: 1; padding: 32px; min-width: 0; }
+
+  /* Course Header */
+  .course-header { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 28px 32px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .course-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+  .course-header-top { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
+  .course-header-icon { width: 52px; height: 52px; background: #e8f5e9; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .course-header-info { flex: 1; }
+  .course-header-info h1 { font-size: 22px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
+  .course-header-info p { font-size: 14px; color: #666; }
+  .course-video-count { background: #f5f5f5; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
+  .progress-section { border-top: 1px solid #f0f0f0; padding-top: 16px; }
+  .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-row-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
+  .progress-row-pct { font-size: 14px; font-weight: 700; color: #2e7d32; }
+  .progress-bar-wrap { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+  .progress-bar-fill { height: 100%; background: #2e7d32; border-radius: 3px; transition: width .3s; }
+  .progress-completed { font-size: 13px; color: #888; }
+
+  /* Phase Block */
+  .phase-block { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; margin-bottom: 16px; overflow: hidden; }
+  .phase-header { display: flex; align-items: center; gap: 14px; padding: 18px 24px; cursor: pointer; user-select: none; border-bottom: 1px solid #f0f0f0; }
+  .phase-num { width: 32px; height: 32px; background: #e8f5e9; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #2e7d32; flex-shrink: 0; }
+  .phase-title { font-size: 17px; font-weight: 700; color: #1a1a1a; flex: 1; }
+  .phase-meta { font-size: 13px; color: #888; margin-right: 10px; }
+  .phase-chevron { font-size: 18px; color: #aaa; transition: transform .2s; line-height: 1; }
+  .phase-chevron.open { transform: rotate(180deg); }
+  .phase-body { padding: 0 24px 24px; }
+
+  /* Video Item */
+  .video-item { padding-top: 24px; }
+  .video-item + .video-item { border-top: 1px solid #f0f0f0; margin-top: 0; }
+  .video-number-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .video-num { width: 28px; height: 28px; background: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #555; flex-shrink: 0; }
+  .video-num.watched { background: #e8f5e9; color: #2e7d32; }
+  .video-title-text { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+  .video-desc { font-size: 14px; color: #666; margin: 6px 0 14px 40px; }
+
+  /* Video player */
+  .video-player { width: 100%; aspect-ratio: 16/9; border-radius: 10px; margin-bottom: 12px; position: relative; overflow: hidden; cursor: pointer; background: linear-gradient(135deg,#4a7c4e,#1a3d1c); }
+  .video-icon-btns { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+  .video-icon-btn { width: 34px; height: 34px; background: rgba(0,0,0,.55); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .vimeo-bar { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent,rgba(0,0,0,.8)); padding: 20px 14px 10px; display: flex; align-items: center; gap: 8px; }
+  .vimeo-play { background: none; border: none; color: #fff; font-size: 15px; cursor: pointer; }
+  .vimeo-progress { flex: 1; height: 3px; background: rgba(255,255,255,.3); border-radius: 2px; }
+  .vimeo-fill { height: 100%; background: #2e7d32; border-radius: 2px; }
+  .vimeo-time { color: #fff; font-size: 11px; min-width: 36px; }
+  .vimeo-icons { display: flex; gap: 6px; }
+  .vimeo-icon { background: none; border: none; color: #fff; font-size: 13px; cursor: pointer; }
+  .vimeo-logo { color: rgba(255,255,255,.7); font-size: 11px; font-weight: 700; font-style: italic; }
+
+  /* Subtitle overlay on video */
+  .video-subtitle { position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.75); color: #fff; font-size: 16px; font-weight: 900; padding: 6px 16px; border-radius: 4px; white-space: nowrap; pointer-events: none; }
+  .video-subtitle span { color: #00e5ff; }
+
+  /* Mark as Watched */
+  .btn-watched { width: 100%; background: #fff; color: #2e7d32; border: 1.5px solid #2e7d32; border-radius: 8px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s, color .15s; }
+  .btn-watched:hover { background: #2e7d32; color: #fff; }
+  .btn-watched:disabled { background: #e8f5e9; color: #2e7d32; cursor: default; }
+
+  /* Next Step */
+  .next-step-card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 8px; }
+  .next-step-label { font-size: 11px; font-weight: 700; color: #2e7d32; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .next-step-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .next-step-desc  { font-size: 13px; color: #777; }
+  .btn-continue { background: #2e7d32; color: #fff; border: none; border-radius: 8px; padding: 12px 22px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: background .15s; }
+  .btn-continue:hover { background: #256428; }
+
+  @media (max-width: 768px) {
+    .mobile-header { display: flex; }
+    .sidebar { transform: translateX(-260px); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-spacer { display: none; }
+    .main { padding: 16px; }
+    .course-header { padding: 20px; }
+    .course-header-top { flex-wrap: wrap; }
+    .phase-body { padding: 0 16px 16px; }
+    .video-desc { margin-left: 0; }
+    .next-step-card { flex-direction: column; align-items: flex-start; }
+    .btn-continue { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mobile-header">
+  <button class="hamburger" id="hamburger">☰</button>
+  <span class="mobile-title">Amazon Affiliate</span>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">📍</div>
+    <div><div class="brand-name">Green Tracker</div><div class="brand-sub">Member's Area</div></div>
+  </div>
+  <div class="progress-box">
+    <div class="progress-ring-wrap">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#3a5a3a" stroke-width="4"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#5cb85c" stroke-width="4" stroke-dasharray="125.6" stroke-dashoffset="108" stroke-linecap="round"/>
+      </svg>
+      <div class="progress-pct">14%</div>
+    </div>
+    <div><div class="progress-label">Progress</div><div class="progress-count-txt">1 of 7 complete</div></div>
+  </div>
+  <a class="nav-item" href="index.html"><span class="nav-icon">▦</span> Dashboard</a>
+  <div class="nav-section-label">Recovery</div>
+  <a class="nav-item" href="index.html"><span class="nav-icon">🎓</span> Training</a>
+  <a class="nav-item" href="american-refunds.html"><span class="nav-icon">💵</span> American Refunds</a>
+  <a class="nav-item" href="recovery-pro.html"><span class="nav-icon">⬇</span> Recovery PRO<span class="nav-badge">2/5</span></a>
+  <div class="nav-section-label">Bonus</div>
+  <a class="nav-item" href="paypal-bonus.html"><span class="nav-icon">💳</span> PayPal Bonus</a>
+  <a class="nav-item active" href="#"><span class="nav-icon">🛒</span> Amazon Affiliate</a>
+  <a class="nav-item" href="#"><span class="nav-icon">📖</span> Marketing Academy</a>
+  <a class="nav-item" href="#"><span class="nav-icon">🔧</span> Support</a>
+  <button class="sidebar-cta">📞 +1 (866) 959-1615</button>
+</aside>
+
+<div class="layout">
+  <div class="sidebar-spacer"></div>
+  <main class="main">
+
+    <!-- Course Header -->
+    <div class="course-header">
+      <div class="course-header-top">
+        <div class="course-header-icon">🛒</div>
+        <div class="course-header-info">
+          <h1>Amazon Affiliate</h1>
+          <p>Complete Amazon affiliate video course. Work through each module at your own pace.</p>
+        </div>
+        <div class="course-video-count">12 Videos</div>
+      </div>
+      <div class="progress-section">
+        <div class="progress-row">
+          <span class="progress-row-label">Your Progress</span>
+          <span class="progress-row-pct" id="pct">0%</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar" style="width:0%"></div></div>
+        <div class="progress-completed" id="completed">0 of 12 completed</div>
+      </div>
+    </div>
+
+    <!-- PART 1: Getting Started -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase('p1')">
+        <div class="phase-num">1</div>
+        <div class="phase-title">Part 1: Getting Started</div>
+        <span class="phase-meta">Videos 1–4</span>
+        <span class="phase-chevron open" id="chev-p1">∧</span>
+      </div>
+      <div class="phase-body" id="p1">
+
+        <!-- Video 1 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-1">1</div><div class="video-title-text">Signing Up for Amazon</div></div>
+          <div class="video-desc">Signing Up for Amazon: First Step to Success</div>
+          <div class="video-player">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-1" onclick="markWatched(1)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 2 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-2">2</div><div class="video-title-text">Essential Rules and Guidelines</div></div>
+          <div class="video-desc">Amazon Essential Rules and Guidelines</div>
+          <div class="video-player" style="background:linear-gradient(135deg,#3a6b3e,#1e4020);">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="video-subtitle">THAT YOU'VE <span>UNDERSTOOD</span></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:30%"></div></div><span class="vimeo-time">02:02</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-2" onclick="markWatched(2)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 3 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-3">3</div><div class="video-title-text">Discovering Commissions</div></div>
+          <div class="video-desc">Discovering Amazon Commissions</div>
+          <div class="video-player" style="background:linear-gradient(135deg,#2d5a30,#163318);">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="video-subtitle">A <span>TOPIC</span> EVERYONE</div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:20%"></div></div><span class="vimeo-time">01:29</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-3" onclick="markWatched(3)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 4 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-4">4</div><div class="video-title-text">Registration Guide</div></div>
+          <div class="video-desc">Complete Guide to Registering on Amazon</div>
+          <div class="video-player">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-4" onclick="markWatched(4)">✓ Mark as Watched</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PART 2: Building Revenue -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase('p2')">
+        <div class="phase-num">2</div>
+        <div class="phase-title">Part 2: Building Revenue</div>
+        <span class="phase-meta">Videos 5–8</span>
+        <span class="phase-chevron open" id="chev-p2">∧</span>
+      </div>
+      <div class="phase-body" id="p2">
+
+        <!-- Video 5 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-5">5</div><div class="video-title-text">Bank Account Setup</div></div>
+          <div class="video-desc">Setting Up Your Amazon Bank Account</div>
+          <div class="video-player">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-5" onclick="markWatched(5)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 6 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-6">6</div><div class="video-title-text">Converting Links</div></div>
+          <div class="video-desc">Turning Links into Commissions: How to Convert Amazon Links</div>
+          <div class="video-player" style="background:linear-gradient(135deg,#3a6b3e,#1a3d1c);">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-6" onclick="markWatched(6)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 7 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-7">7</div><div class="video-title-text">Organizing Collections</div></div>
+          <div class="video-desc">Creating and Organizing Collections on Amazon</div>
+          <div class="video-player" style="background:linear-gradient(135deg,#2d5a30,#163318);">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-7" onclick="markWatched(7)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 8 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-8">8</div><div class="video-title-text">Top Selling Products</div></div>
+          <div class="video-desc">Identifying Top Selling Products on Amazon</div>
+          <div class="video-player">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-8" onclick="markWatched(8)">✓ Mark as Watched</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PART 3: Scaling Up -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase('p3')">
+        <div class="phase-num">3</div>
+        <div class="phase-title">Part 3: Scaling Up</div>
+        <span class="phase-meta">Videos 9–12</span>
+        <span class="phase-chevron open" id="chev-p3">∧</span>
+      </div>
+      <div class="phase-body" id="p3">
+
+        <!-- Video 9 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-9">9</div><div class="video-title-text">Tracking Commissions</div></div>
+          <div class="video-desc">Tracking and Managing Your Amazon Commissions</div>
+          <div class="video-player">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-9" onclick="markWatched(9)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 10 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-10">10</div><div class="video-title-text">Growth Strategies</div></div>
+          <div class="video-desc">Strategies and Tips to Leverage Yourself as an Amazon Affiliate</div>
+          <div class="video-player" style="background:linear-gradient(135deg,#3a6b3e,#1a3d1c);">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-10" onclick="markWatched(10)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 11 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-11">11</div><div class="video-title-text">Platform Tour</div></div>
+          <div class="video-desc">Exploring the Platform: A Complete Tour of Amazon</div>
+          <div class="video-player" style="background:linear-gradient(135deg,#2d5a30,#163318);">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-11" onclick="markWatched(11)">✓ Mark as Watched</button>
+        </div>
+
+        <!-- Video 12 -->
+        <div class="video-item">
+          <div class="video-number-row"><div class="video-num" id="num-12">12</div><div class="video-title-text">News and Updates</div></div>
+          <div class="video-desc">Exclusive Amazon News and Updates</div>
+          <div class="video-player">
+            <div class="video-icon-btns"><div class="video-icon-btn">🤍</div><div class="video-icon-btn">🕐</div></div>
+            <div class="vimeo-bar"><button class="vimeo-play">▶</button><div class="vimeo-progress"><div class="vimeo-fill" style="width:0%"></div></div><span class="vimeo-time">00:00</span><div class="vimeo-icons"><button class="vimeo-icon">🔊</button><button class="vimeo-icon">⚙</button><button class="vimeo-icon">⛶</button></div><span class="vimeo-logo">vimeo</span></div>
+          </div>
+          <button class="btn-watched" id="btn-12" onclick="markWatched(12)">✓ Mark as Watched</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Next Step -->
+    <div class="next-step-card">
+      <div>
+        <div class="next-step-label">Next Step</div>
+        <div class="next-step-title">Money School</div>
+        <div class="next-step-desc">Free digital marketing ebooks — 8 courses to master the digital landscape.</div>
+      </div>
+      <a href="marketing-academy.html" class="btn-continue">Continue ›</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const TOTAL = 12;
+  const watched = JSON.parse(localStorage.getItem('amz_watched') || '[]');
+
+  function updateProgress() {
+    const count = watched.length;
+    const pct = Math.round(count / TOTAL * 100);
+    document.getElementById('pct').textContent = pct + '%';
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('completed').textContent = count + ' of ' + TOTAL + ' completed';
+  }
+
+  function markWatched(num) {
+    if (!watched.includes(num)) { watched.push(num); localStorage.setItem('amz_watched', JSON.stringify(watched)); }
+    const numEl = document.getElementById('num-' + num);
+    if (numEl) { numEl.classList.add('watched'); numEl.textContent = '✓'; }
+    const btn = document.getElementById('btn-' + num);
+    if (btn) { btn.textContent = '✓ Watched'; btn.style.background = '#e8f5e9'; btn.disabled = true; }
+    updateProgress();
+  }
+
+  function togglePhase(id) {
+    const body = document.getElementById(id);
+    const chev = document.getElementById('chev-' + id);
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    chev.classList.toggle('open', !isOpen);
+    chev.textContent = isOpen ? '∨' : '∧';
+  }
+
+  watched.forEach(n => {
+    const numEl = document.getElementById('num-' + n);
+    if (numEl) { numEl.classList.add('watched'); numEl.textContent = '✓'; }
+    const btn = document.getElementById('btn-' + n);
+    if (btn) { btn.textContent = '✓ Watched'; btn.style.background = '#e8f5e9'; btn.disabled = true; }
+  });
+  updateProgress();
+
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  function openSidebar()  { sidebar.classList.add('open'); overlay.classList.add('open'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+  document.getElementById('hamburger').addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay.addEventListener('click', closeSidebar);
+  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
+</script>
+</body>
+</html>
